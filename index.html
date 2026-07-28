@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO Meta Tags -->
+  <title>JobhardER | Latest Jobs in Nigeria</title>
+  <meta name="description" content="JobhardER is your premier source for verified job openings, career advice, graduate trainee roles, and remote work opportunities in Nigeria.">
+  <link rel="canonical" href="http://localhost:3000/index.html">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+
+  <!-- RSS Feed -->
+  <link href="/atom.xml" rel="alternate" title="RSS Feed" type="application/atom+xml">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="JobhardER | Latest Jobs in Nigeria">
+  <meta property="og:description" content="Verified job openings, career guides, and application alerts for Nigerian job seekers.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://localhost:3000/index.html">
+  <meta property="og:site_name" content="JobhardER">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop">
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="JobhardER | Latest Jobs in Nigeria">
+  <meta name="twitter:description" content="Verified job openings, career guides, and application alerts for Nigerian job seekers.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop">
+
+  <!-- JSON-LD Schema -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org","@graph":[
+      {"@type":"Organization","@id":"http://localhost:3000/#organization","name":"JobhardER","url":"http://localhost:3000/"},
+      {"@type":"WebSite","@id":"http://localhost:3000/#website","url":"http://localhost:3000/","name":"JobhardER","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"http://localhost:3000/search?q={search_term_string}"},"query-input":"required name=search_term_string"}}
+    ]
+  }
+  </script>
+
+  <!-- GA4 Placeholder (replace with real snippet) -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script> -->
+
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8347952847217732" crossorigin="anonymous"></script>
+
+  <link rel="manifest" href="/manifest.json">
+  <!-- OneSignal Web Push SDK (replace YOUR_ONESIGNAL_APP_ID) -->
+  <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+  <script>
+    window.OneSignal = window.OneSignal || [];
+    OneSignal.push(function() {
+      OneSignal.init({
+        appId: "f48ce069-28b2-4d26-aedb-32a44dd66507",
+        allowLocalhostAsSecureOrigin: true,
+        notifyButton: { enable: true }
+      });
+    });
+  </script>
+  <link rel="stylesheet" href="index.css">
+  <script>
+    // Service worker register and install prompt handling
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').then(() => console.log('SW registered'));
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const previewBar = document.getElementById('previewBar');
+      if (previewBar) previewBar.style.display = 'flex';
+      const installBtn = document.getElementById('installGuideBtn');
+      if (installBtn) installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const choiceResult = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- Preview Installer Bar -->
+  <div class="preview-installer-bar" id="previewBar">
+    <div class="preview-bar-title">
+      <span class="preview-bar-badge">JOBHARDER</span>
+      JobhardER � Jobs, Alerts & Career Guides
+    </div>
+      <div class="preview-bar-actions">
+      <button class="preview-btn preview-btn-secondary" id="installGuideBtn">Install Guide</button>
+      <button class="preview-btn preview-btn-primary" id="downloadXmlBtn">Download XML</button>
+      <button class="preview-btn preview-btn-accent" id="enableAlertsBtn">Enable Alerts</button>
+      <button class="preview-bar-close" id="closePreviewBar">Close</button>
+    </div>
+  </div>
+  <button class="preview-restore-btn" id="restorePreviewBar">??</button>
+
+  <script>
+    // Push subscription helper (requires server endpoint and VAPID public key)
+    async function subscribeForPush() {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        alert('Push notifications are not supported in this browser.');
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert('Notifications permission denied.');
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
+      try {
+        const vapidPublicKey = '<YOUR_VAPID_PUBLIC_KEY_BASE64URL>'; // replace with your VAPID public key
+        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+        const sub = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: convertedKey });
+        // Send subscription to server to store and use for sending pushes
+        await fetch('/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(sub) });
+        alert('Subscribed to JobhardER alerts — thank you!');
+      } catch (err) {
+        console.error('Push subscribe error', err);
+        alert('Could not subscribe for push: ' + err.message);
+      }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const enableBtn = document.getElementById('enableAlertsBtn');
+      if (enableBtn) enableBtn.addEventListener('click', subscribeForPush);
+    });
+  </script>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-logo">JH</span>
+        <div>
+          <h1 class="brand-name"><a href="index.html">JobhardER</a></h1>
+          <p class="brand-tagline">Latest verified jobs, career tips and graduate trainee alerts.</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <nav class="main-nav" id="mainNav">
+          <a href="#latest" class="active">Home</a>
+          <div class="nav-dropdown">
+            <a href="#" class="dropdown-toggle">Latest Jobs <span class="mob-arrow">?</span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/search/label/Graduate-Trainee">Graduate Trainee</a></li>
+              <li><a href="/search/label/Government-Jobs">Government Jobs</a></li>
+              <li><a href="/search/label/Private-Jobs">Private Sector</a></li>
+              <li><a href="/search/label/Remote-Jobs">Remote Jobs</a></li>
+            </ul>
+          </div>
+          <div class="nav-dropdown">
+            <a href="#" class="dropdown-toggle">Career Guides <span class="mob-arrow">?</span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/search/label/CV-and-Interview">CV & Interview</a></li>
+              <li><a href="/search/label/Tech-Careers-and-Digital-Skills">Tech Careers</a></li>
+              <li><a href="/search/label/Salaries-and-Cost-of-Living">Salaries & Living</a></li>
+            </ul>
+          </div>
+          <a href="#fixtures">Job Alerts</a>
+          <a href="#fantasy">Resources</a>
+          <a href="/p/about-us.html">About</a>
+          <a href="/p/contact-us.html">Contact</a>
+        </nav>
+        <form action="/search" class="search-form" id="headerSearchForm">
+          <input class="search-input" id="headerSearch" name="q" placeholder="Search jobs, companies or skills�" type="text">
+          <button class="search-submit" type="submit">??</button>
+        </form>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Header AdSense Banner -->
+  <div class="container adsense-container">
+    <div class="adsense-banner">
+      <ins class="adsbygoogle adsense-slot"
+           style="display:block;width:100%;min-height:90px"
+           data-ad-client="ca-pub-8347952847217732"
+           data-ad-slot="9963890350"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <!-- Jobs Update Strip -->
+  <section class="scores-strip" id="fixtures">
+    <div class="container scores-inner">
+      <a class="score-item" href="/search/label/Graduate-Trainee">
+        <span class="score-league">Graduate Trainee</span>
+        <span class="score-match">Apply: Tech Accelerator Program</span>
+        <span class="score-status live">New</span>
+      </a>
+      <a class="score-item" href="/search/label/Government-Jobs">
+        <span class="score-league">Government Jobs</span>
+        <span class="score-match">Civil Service Recruitment 2026</span>
+        <span class="score-status">Hot</span>
+      </a>
+      <a class="score-item" href="/search/label/Remote-Jobs">
+        <span class="score-league">Remote Jobs</span>
+        <span class="score-match">Dollar-Paid Developer Roles</span>
+        <span class="score-status">Live</span>
+      </a>
+      <a class="score-item" href="/search/label/Internships-and-SIWES">
+        <span class="score-league">Internships</span>
+        <span class="score-match">SIWES & Internship Openings</span>
+        <span class="score-status">New</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div class="hero-main" style="background:radial-gradient(circle at top left,rgba(37,99,235,.85),rgba(5,7,10,.95)),url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop') center/cover no-repeat;">
+        <div class="hero-main-content">
+          <div class="hero-label">Featured Job Alert</div>
+          <h2 class="hero-title">Graduate trainee openings for top Nigerian employers</h2>
+          <p class="hero-excerpt">Unlock new career opportunities with verified pathways into finance, tech, public service and remote roles.</p>
+          <div class="hero-meta"><span>JobhardER Team</span><span>�</span><span>Updated 1 hour ago</span></div>
+          <a href="#single-post-demo" class="btn-primary">View latest job story</a>
+        </div>
+      </div>
+      <aside class="hero-side">
+        <h3 class="hero-side-title">Top job headlines</h3>
+        <article class="headline-card"><span class="headline-tag">Government</span><h4 class="headline-title">Federal agency opens graduate trainee recruitment</h4></article>
+        <article class="headline-card"><span class="headline-tag">Tech</span><h4 class="headline-title">Remote developer roles paying in dollars</h4></article>
+        <article class="headline-card"><span class="headline-tag">Career</span><h4 class="headline-title">CV checklist for successful applications</h4></article>
+      </aside>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="page-main" id="latest">
+    <div class="container layout">
+      <section class="content-column">
+
+        <!-- ===== FEED VIEW ===== -->
+        <h2 class="section-title">Latest opportunities</h2>
+        <div class="card-grid">
+          <article class="post-card">
+            <div class="post-thumb"><img src="https://images.unsplash.com/photo-1606925797300-0b35e9d17677?q=80&w=400&auto=format&fit=crop" alt="Graduate trainee role" loading="lazy"></div>
+            <div class="post-body">
+              <div class="post-tags-wrapper">
+                <a href="/search/label/Graduate-Trainee" class="post-tag">Graduate Trainee</a>
+                <a href="/search/label/Tech-Careers-and-Digital-Skills" class="post-tag">Tech</a>
+              </div>
+              <h3 class="post-title"><a href="#single-post-demo">Graduate trainee programme with structured learning and stipend</a></h3>
+              <p class="post-excerpt">Learn how to apply to one of the best entry-level roles for recent graduates across Lagos and remote teams.</p>
+              <div class="post-meta"><span>Today</span><span>�</span><span>9 comments</span></div>
+            </div>
+          </article>
+
+          <article class="post-card">
+            <div class="post-thumb"><img src="https://images.unsplash.com/photo-1519014626676-c3e3b70eea60?q=80&w=400&auto=format&fit=crop" alt="Job interview" loading="lazy"></div>
+            <div class="post-body">
+              <div class="post-tags-wrapper">
+                <a href="/search/label/CV-and-Interview" class="post-tag">CV & Interview</a>
+                <a href="/search/label/Salaries-and-Cost-of-Living" class="post-tag">Career</a>
+              </div>
+              <h3 class="post-title"><a href="#single-post-demo">How to land more interviews with a standout application</a></h3>
+              <p class="post-excerpt">A practical guide to improving your CV, writing cover letters, and preparing for assessment tests.</p>
+              <div class="post-meta"><span>Yesterday</span><span>�</span><span>14 comments</span></div>
+            </div>
+          </article>
+
+          <article class="post-card">
+            <div class="post-thumb"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400&auto=format&fit=crop" alt="Remote work" loading="lazy"></div>
+            <div class="post-body">
+              <div class="post-tags-wrapper">
+                <a href="/search/label/Remote-Jobs" class="post-tag">Remote Jobs</a>
+                <a href="/search/label/Tech-Careers-and-Digital-Skills" class="post-tag">Skills</a>
+              </div>
+              <h3 class="post-title"><a href="#single-post-demo">Remote roles with dollar pay you can apply for today</a></h3>
+              <p class="post-excerpt">Explore flexible remote positions for developers, marketers, and support specialists hiring now.</p>
+              <div class="post-meta"><span>2 days ago</span><span>�</span><span>7 comments</span></div>
+            </div>
+          </article>
+        </div>
+
+        <!-- In-Feed AdSense -->
+        <div class="adsense-container">
+          <div class="adsense-banner">
+            <ins class="adsbygoogle adsense-slot"
+                 style="display:block"
+                 data-ad-client="ca-pub-8347952847217732"
+                 data-ad-slot="7645381603"
+                 data-ad-format="fluid"
+                 data-ad-layout-key="-6t+ed+2i-1n-4w"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination-wrapper">
+          <nav class="pagination-nav">
+            <a href="#" class="pager-btn">? Newer Posts</a>
+            <a href="#" class="pager-btn">Older Posts ?</a>
+          </nav>
+        </div>
+
+        <!-- ===== LABEL / CATEGORY PAGE DEMO ===== -->
+        <div style="margin-top:48px; border-top:1px solid var(--border); padding-top:40px;">
+          <div class="label-header">
+            <h2 class="section-title">Graduate Trainee</h2>
+            <p class="label-count">Articles tagged with this topic</p>
+          </div>
+        </div>
+
+        <!-- ===== SINGLE POST ARTICLE VIEW ===== -->
+        <div style="margin-top:32px;" id="single-post-demo">
+          <h2 class="section-title">Single Post View � Sample Story</h2>
+          <article class="single-post-container">
+            <div class="post-tags-wrapper">
+              <a href="/search/label/Graduate-Trainee" class="post-tag">Graduate Trainee</a>
+              <a href="/search/label/CV-and-Interview" class="post-tag">CV & Interview</a>
+              <a href="/search/label/Tech-Careers-and-Digital-Skills" class="post-tag">Skills</a>
+            </div>
+
+            <h1 class="single-post-title">Graduate Trainee Programme Opens for Nigeria's Leading Firms</h1>
+
+            <div class="single-post-meta">
+              <span>By <strong>JobhardER Team</strong></span>
+              <span>�</span>
+              <span>Published Today at 11:00</span>
+              <span>�</span>
+              <span>10 Comments</span>
+            </div>
+
+            <!-- In-Article Top Ad -->
+            <div class="adsense-container">
+              <div class="adsense-banner">
+                <ins class="adsbygoogle adsense-slot"
+                     style="display:block;width:100%;min-height:250px"
+                     data-ad-layout="in-article"
+                     data-ad-format="fluid"
+                     data-ad-client="ca-pub-8347952847217732"
+                     data-ad-slot="2890413216"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+              </div>
+            </div>
+
+            <!-- Table of Contents (auto-generated by app.js from h2/h3 in post body) -->
+            <div class="toc-container" id="toc-container">
+              <div class="toc-header">
+                <p class="toc-title">?? Table of Contents</p>
+                <span class="toc-toggle" id="toc-toggle">Collapse ?</span>
+              </div>
+              <ol class="toc-list" id="toc-list"></ol>
+            </div>
+
+            <!-- Post Body -->
+            <div class="single-post-body" id="post-body">
+              <h2>The Programme Structure</h2>
+              <p>Top employers are offering structured graduate trainee programmes with mentorship, onboarding support, and competitive stipends. These roles are ideal for recent graduates looking to build career momentum.</p>
+              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=800&auto=format&fit=crop" alt="Trainee application" loading="lazy">
+
+              <h2>Eligibility and Application</h2>
+              <p>Applicants should have a university degree or HND, strong communication skills, and the ability to learn quickly. Each job advert includes application deadlines, required documents, and interview guidance.</p>
+
+              <h3>Why This Matters</h3>
+              <p>These opportunities are often the gateway to permanent employment, with alumni progressing into management, operations, and technical specialist roles.</p>
+
+              <h2>Next Steps</h2>
+              <p>Bookmark the post, follow the application link, and prepare your CV with the tailored profile requirements shown in the job listing.</p>
+            </div>
+
+            <!-- Social Share -->
+            <div class="share-buttons">
+              <span class="share-label">Share:</span>
+              <a href="https://twitter.com" target="_blank" class="share-btn tw" title="Share on Twitter / X">
+                <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <span>Twitter / X</span>
+              </a>
+              <a href="https://facebook.com" target="_blank" class="share-btn fb" title="Share on Facebook">
+                <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                <span>Facebook</span>
+              </a>
+              <a href="https://whatsapp.com" target="_blank" class="share-btn wa" title="Share on WhatsApp">
+                <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                <span>WhatsApp</span>
+              </a>
+              <a href="https://linkedin.com" target="_blank" class="share-btn li" title="Share on LinkedIn">
+                <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                <span>LinkedIn</span>
+              </a>
+              <button class="share-btn copy" onclick="navigator.clipboard.writeText(location.href);alert('Link copied to clipboard!');" title="Copy Link">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                <span>Copy Link</span>
+              </button>
+            </div>
+
+            <!-- In-Article Bottom Ad -->
+            <div class="adsense-container">
+              <div class="adsense-banner">
+                <ins class="adsbygoogle adsense-slot"
+                     style="display:block;width:100%;min-height:250px"
+                     data-ad-layout="in-article"
+                     data-ad-format="fluid"
+                     data-ad-client="ca-pub-8347952847217732"
+                     data-ad-slot="6773516583"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+              </div>
+            </div>
+
+            <!-- Related Posts -->
+            <div class="related-posts">
+              <h3 class="section-title">Related Stories</h3>
+              <div class="related-grid">
+                <a href="#" class="related-card">
+                  <img src="https://images.unsplash.com/photo-1518063319789-7217e6706b04?q=80&w=400&auto=format&fit=crop" alt="Related" loading="lazy">
+                  <div class="related-card-body"><p class="related-card-title">How to tailor your CV for trainee schemes</p></div>
+                </a>
+                <a href="#" class="related-card">
+                  <img src="https://images.unsplash.com/photo-1540747737956-37872404a8de?q=80&w=400&auto=format&fit=crop" alt="Related" loading="lazy">
+                  <div class="related-card-body"><p class="related-card-title">10 remote job roles hiring now</p></div>
+                </a>
+                <a href="#" class="related-card">
+                  <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400&auto=format&fit=crop" alt="Related" loading="lazy">
+                  <div class="related-card-body"><p class="related-card-title">Government recruitment updates for 2026</p></div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="comments-section">
+              <h3 class="comments-title">12 Comments</h3>
+              <div class="comment-block">
+                <div class="comment-header">
+                  <div class="comment-avatar">AO</div>
+                  <div>
+                    <div class="comment-author-name">Adewale O.</div>
+                    <div class="comment-time">2 hours ago</div>
+                  </div>
+                </div>
+                <p class="comment-content">This graduate trainee role looks ideal for recent graduates. The steps are clear and the application process is well explained.</p>
+              </div>
+              <div class="comment-block">
+                <div class="comment-header">
+                  <div class="comment-avatar">EK</div>
+                  <div>
+                    <div class="comment-author-name">Emeka K.</div>
+                    <div class="comment-time">3 hours ago</div>
+                  </div>
+                </div>
+                <p class="comment-content">A great resource for prospective applicants. JobhardER is making it much easier to track trusted openings.</p>
+              </div>
+              <div class="comment-form">
+                <h4>Leave a Comment</h4>
+                <input type="text" placeholder="Your name">
+                <input type="email" placeholder="Your email (not published)">
+                <textarea rows="4" placeholder="Write your comment�"></textarea>
+                <button type="submit">Post Comment</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- ===== 404 ERROR PAGE DEMO ===== -->
+        <div style="margin-top:48px; border-top:1px solid var(--border); padding-top:40px;">
+          <h2 class="section-title">Custom 404 Page</h2>
+          <div class="error-404">
+            <div class="error-404-code">404</div>
+            <h1 class="error-404-title">Page Not Found</h1>
+            <p class="error-404-text">The job listing or page you are looking for might have been removed, renamed, or is temporarily unavailable.</p>
+            <a href="index.html" class="btn-primary">? Back to Homepage</a>
+          </div>
+        </div>
+
+        <!-- Videos -->
+        <section class="videos-row" id="videos">
+          <div class="section-header">
+            <h2 class="section-title">Latest videos</h2>
+            <a href="#" class="section-link">View all ?</a>
+          </div>
+          <div class="card-grid">
+            <article class="video-card" data-video-title="Career tips for fresh graduates">
+              <div class="video-thumb"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=400&auto=format&fit=crop" alt="Highlights" loading="lazy"></div>
+              <div class="video-body"><span class="video-tag">Career</span><h3 class="video-title">Career tips for fresh graduates</h3></div>
+            </article>
+            <article class="video-card" data-video-title="How to write a winning CV">
+              <div class="video-thumb"><img src="https://images.unsplash.com/photo-1519014626676-c3e3b70eea60?q=80&w=400&auto=format&fit=crop" alt="Tactics" loading="lazy"></div>
+              <div class="video-body"><span class="video-tag">CV</span><h3 class="video-title">How to write a winning CV</h3></div>
+            </article>
+            <article class="video-card" data-video-title="Top remote job roles hiring now">
+              <div class="video-thumb"><img src="https://images.unsplash.com/photo-1540747737956-37872404a8de?q=80&w=400&auto=format&fit=crop" alt="Interview" loading="lazy"></div>
+              <div class="video-body"><span class="video-tag">Remote</span><h3 class="video-title">Top remote job roles hiring now</h3></div>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <!-- Sidebar AdSense Top -->
+        <div class="adsense-banner" style="min-height:250px">
+          <ins class="adsbygoogle adsense-slot"
+               style="display:block;width:100%;min-height:250px"
+               data-ad-client="ca-pub-8347952847217732"
+               data-ad-slot="6849538208"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <!-- Search -->
+        <section class="sidebar-card sidebar-search">
+          <h3 class="sidebar-title">Search</h3>
+          <form action="/search" method="get">
+            <input name="q" placeholder="Search jobs or guides�" type="text">
+            <button type="submit">??</button>
+          </form>
+        </section>
+
+        <!-- Job Tips -->
+        <section class="sidebar-card">
+          <h3 class="sidebar-title">Job tips</h3>
+          <ul class="table-list">
+            <li><span><strong>Focus</strong></span><span><strong>Time</strong></span></li>
+            <li><span>Update CV</span><span>5 min</span></li>
+            <li><span>Apply today</span><span>2 min</span></li>
+            <li><span>Prepare for test</span><span>10 min</span></li>
+            <li><span>Follow up</span><span>3 min</span></li>
+          </ul>
+        </section>
+
+        <section class="sidebar-card">
+          <h3 class="sidebar-title">Trending topics</h3>
+          <ul class="tag-list">
+            <li><a href="/search/label/Graduate-Trainee">#GraduateTrainee</a></li>
+            <li><a href="/search/label/Remote-Jobs">#RemoteJobs</a></li>
+            <li><a href="/search/label/CV-and-Interview">#CVTips</a></li>
+            <li><a href="/search/label/Tech-Careers-and-Digital-Skills">#DigitalSkills</a></li>
+            <li><a href="/search/label/Government-and-Big-Employers">#GovernmentJobs</a></li>
+            <li><a href="/search/label/Scam-Protection">#ScamProtection</a></li>
+            <li><a href="/search/label/Grants">#Grants</a></li>
+            <li><a href="/search/label/News">#JobNews</a></li>
+          </ul>
+        </section>
+
+        <!-- Sidebar AdSense Bottom -->
+        <div class="adsense-banner" style="min-height:300px">
+          <ins class="adsbygoogle adsense-slot"
+               style="display:block;width:100%;min-height:300px"
+               data-ad-client="ca-pub-8347952847217732"
+               data-ad-slot="2451429517"
+               data-ad-format="autorelaxed"
+               data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <!-- Newsletter -->
+        <section class="sidebar-card sidebar-newsletter">
+          <h3 class="sidebar-title">Newsletter</h3>
+          <p>Get weekly job alerts, application tips and career guides straight to your inbox.</p>
+          <form id="newsletterForm">
+            <input type="email" id="newsletterEmail" placeholder="Enter your email" required>
+            <button type="submit">Subscribe</button>
+          </form>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Footer AdSense -->
+  <div class="container adsense-container">
+    <div class="adsense-banner">
+      <ins class="adsbygoogle adsense-slot"
+           style="display:block;width:100%;min-height:90px"
+           data-ad-client="ca-pub-8347952847217732"
+           data-ad-slot="9963890350"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-column">
+        <h4>About JobhardER</h4>
+        <p>JobhardER is your trusted source for verified job openings, career advice, and application support in Nigeria.</p>
+      </div>
+      <div class="footer-column">
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="/p/about-us.html">About Us</a></li>
+          <li><a href="/p/contact-us.html">Contact Us</a></li>
+          <li><a href="/search/label/Latest-Jobs">Latest Jobs</a></li>
+          <li><a href="/search/label/CV-and-Interview">Career Guides</a></li>
+          <li><a href="/p/disclaimer.html">Disclaimer</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="https://youtube.com" target="_blank">YouTube</a></li>
+          <li><a href="https://twitter.com" target="_blank">Twitter / X</a></li>
+          <li><a href="https://facebook.com" target="_blank">Facebook</a></li>
+          <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
+        </ul>
+      </div>
+      <div class="footer-column footer-meta">
+        <p> 2026 JobhardER. All rights reserved.</p>
+        <p><a href="/p/privacy-policy.html">Privacy Policy</a>  <a href="https://www.jobharder.com/p/terms-of-use-effective-date-january-8.html">Terms & Conditions</a></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Installation Guide Modal -->
+  <div class="modal-overlay" id="guideModal">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="closeGuideModal">?</button>
+      <h3 class="modal-title">How to Install on Blogger</h3>
+      <ol class="modal-steps">
+        <li>Click <strong>Download XML Theme</strong> to get <code>theme.xml</code>.</li>
+        <li>Go to <a href="https://www.blogger.com" target="_blank" style="color:var(--primary-h);text-decoration:underline">blogger.com</a> ? your blog ? <strong>Theme</strong>.</li>
+        <li>Click the arrow ? next to Customize ? select <strong>Restore</strong>.</li>
+        <li>Click <strong>Upload</strong> and choose <code>theme.xml</code>.</li>
+        <li>After install, go to <strong>Layout</strong> and edit your AdSense and analytics widgets.</li>
+        <li>? Done  your JobhardER theme is live!</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Video Lightbox -->
+  <div class="video-lightbox" id="videoLightbox">
+    <button class="video-lightbox-close" id="closeVideoLightbox">?</button>
+    <div class="video-container">
+      <div class="video-placeholder-text">
+        <span style="font-size:48px;display:block;margin-bottom:12px;">??</span>
+        <h3 id="lightboxVideoTitle">Video Title</h3>
+        <p style="color:var(--text-3);font-size:14px;">Premium video player layout simulation.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toasts -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

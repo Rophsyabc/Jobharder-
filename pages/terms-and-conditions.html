@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Terms and Conditions</title>
+  <style>
+    :root {
+      --jh-primary: #4B2CA0;
+      --jh-primary-soft: #F3F0FF;
+      --jh-accent: #FF7A45;
+      --jh-text: #222;
+      --jh-muted: #666;
+      --jh-border: #e5e5e5;
+      --jh-bg: #ffffff;
+      --jh-max-width: 1100px;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--jh-bg); color: var(--jh-text); }
+    a { color: var(--jh-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: var(--jh-max-width); margin: 0 auto; padding: 0 16px; }
+    .site-header { background: var(--jh-primary); color: #fff; border-bottom: 1px solid rgba(255,255,255,0.15); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; gap: 24px; flex-wrap: wrap; }
+    .brand-name { margin: 0; font-size: 1.4rem; font-weight: 700; }
+    .brand-name a { color: #fff; }
+    .brand-tagline { margin: 4px 0 0; font-size: 0.9rem; color: rgba(255,255,255,0.8); }
+    .main-nav { display: flex; flex-wrap: wrap; gap: 12px; }
+    .main-nav a { color: #fff; font-size: 0.9rem; }
+    .hero { background: var(--jh-primary-soft); padding: 24px 0; border-bottom: 1px solid var(--jh-border); }
+    .hero h1 { margin: 0 0 8px; font-size: 2rem; }
+    .hero p { margin: 0; font-size: 1rem; color: var(--jh-muted); }
+    .content { padding: 32px 0; }
+    .content h2 { margin-top: 0; }
+    .content p, .content li { line-height: 1.8; color: var(--jh-muted); }
+    .content ul { padding-left: 20px; }
+    .site-footer { border-top: 1px solid var(--jh-border); padding: 16px 0; font-size: 0.85rem; color: var(--jh-muted); background: #fafafa; }
+    .footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    @media (max-width: 700px) { .header-inner, .footer-inner { flex-direction: column; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div>
+        <h1 class="brand-name"><a href="/">JobhardER</a></h1>
+        <p class="brand-tagline">Latest official jobs in Nigeria, graduate trainee roles, and remote career guides.</p>
+      </div>
+      <nav class="main-nav">
+        <a href="/">Home</a>
+        <a href="/search/label/Latest-Jobs">Latest Jobs</a>
+        <a href="/p/about-us.html">About</a>
+        <a href="/p/contact-us.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="container">
+      <h1>Terms and Conditions</h1>
+      <p>These terms outline the rules and responsibilities for using JobhardER.</p>
+    </div>
+  </section>
+  <main class="container content">
+    <h2>Acceptance of terms</h2>
+    <p>By accessing our site, you agree to these terms and our policies. If you do not agree, please do not use the site.</p>
+    <h2>Use of content</h2>
+    <p>All content is provided for informational purposes only. Job postings and career advice are not guarantees of employment.</p>
+    <h2>User responsibilities</h2>
+    <ul>
+      <li>Use the site lawfully and respectfully.</li>
+      <li>Do not post spam or harmful content.</li>
+      <li>Verify job details with the original employer before applying.</li>
+    </ul>
+    <h2>Changes to the terms</h2>
+    <p>We may update these terms periodically. Continued use after changes means you accept the new terms.</p>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>© JobhardER 2026. All rights reserved.</div>
+      <div><a href="/p/privacy-policy.html">Privacy Policy</a> · <a href="/p/contact-us.html">Contact</a></div>
+    </div>
+  </footer>
+</body>
+</html>
