@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html
   b:css='false'
+  b:defaultmarkups='false'
   b:defaultwidgetversion='2'
   b:js='true'
   b:layoutsVersion='3'
@@ -18,13 +19,18 @@
     <meta charset='UTF-8'/>
     <meta content='width=device-width, initial-scale=1.0' name='viewport'/>
 
-    <!-- Google Fonts -->
-    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Outfit:wght@400;500;600;700;800;900&amp;display=swap' rel='stylesheet'/>
+    <!-- Preconnects for critical origins only -->
+    <link href='https://fonts.googleapis.com' rel='preconnect'/>
+    <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
+    <link href='https://pagead2.googlesyndication.com' rel='preconnect'/>
+    <!-- Google Fonts: non-blocking load (print→all swap trick) -->
+    <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Outfit:wght@700;800;900&amp;display=swap' rel='stylesheet' media='print' onload="this.media='all'"/>
+    <noscript><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Outfit:wght@700;800;900&amp;display=swap' rel='stylesheet'/></noscript>
 
     <!-- ===== SEO: DYNAMIC TITLE + DESCRIPTION ===== -->
     <b:if cond='data:view.isHomepage'>
-      <title><data:blog.title/> - Official Jobs, Career Guides &amp; Application News</title>
-      <meta expr:content='data:blog.metaDescription ? data:blog.metaDescription : data:blog.title + " is your premier source for Nigerian job alerts, graduate trainee roles, remote work tips, carry guides, and career application advice."' name='description'/>
+      <title>JobhardER | Jobs, Career Guides &amp; Application Tips</title>
+      <meta content='JobhardER brings verified Nigerian jobs, graduate trainee openings, career tips, and application news in one trusted platform.' name='description'/>
     <b:else/>
       <title><data:blog.pageTitle/> | <data:blog.title/></title>
       <b:if cond='data:view.description'>
@@ -101,30 +107,41 @@
     <!-- Blogger default head -->
     <b:include data='blog' name='all-head-content'/>
 
-    <!-- Google AdSense -->
-    <script async src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8347952847217732' crossorigin='anonymous'></script>
+    <!-- Google AdSense: Optimized Non-blocking Loader -->
+    <script>
+    //<![CDATA[
+      (function(){
+        var adLoaded = false;
+        function loadAdSense(){
+          if(adLoaded) return;
+          adLoaded = true;
+          var s = document.createElement('script');
+          s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8347952847217732';
+          s.async = true;
+          s.crossOrigin = 'anonymous';
+          (document.head || document.body).appendChild(s);
+        }
+        if('requestIdleCallback' in window){
+          requestIdleCallback(loadAdSense, {timeout: 2500});
+        } else {
+          window.addEventListener('load', function(){ setTimeout(loadAdSense, 1000); });
+        }
+        ['scroll', 'touchstart', 'mousemove', 'keydown'].forEach(function(ev){
+          window.addEventListener(ev, loadAdSense, {once:true, passive:true});
+        });
+      })();
+    //]]>
+    </script>
 
-    <link rel="manifest" href="/manifest.json"/>
-    <!-- OneSignal Web Push SDK (replace YOUR_ONESIGNAL_APP_ID) -->
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+    <!-- OneSignal — SDK loaded by Blogger; init below overrides notifyButton -->
     <script>
       window.OneSignal = window.OneSignal || [];
       OneSignal.push(function() {
         OneSignal.init({
           appId: "f48ce069-28b2-4d26-aedb-32a44dd66507",
           allowLocalhostAsSecureOrigin: true,
-          notifyButton: { enable: true }
+          notifyButton: { enable: false }
         });
-      });
-    </script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/service-worker.js').then(() => console.log('SW registered'));
-      }
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
       });
     </script>
 
@@ -136,7 +153,7 @@
       :root {
         --bg-darker:#05070a; --bg-main:#0a0d14; --bg-card:#0f131f; --bg-card-hover:#151b2c;
         --border:#1e293b; --border-hover:#334155;
-        --text-1:#f8fafc; --text-2:#94a3b8; --text-3:#64748b;
+        --text-1:#f8fafc; --text-2:#94a3b8; /* Phase 10 a11y: text-3 raised #64748b→#8896a8 for WCAG 4.5:1 */ --text-3:#8896a8;
         --primary:#2563eb; --primary-h:#3b82f6; --primary-glow:rgba(37,99,235,.25);
         --accent:#f97316; --accent-h:#fb923c; --accent-glow:rgba(249,115,22,.35);
         --success:#10b981; --live-red:#ef4444; --live-glow:rgba(239,68,68,.6);
@@ -270,14 +287,17 @@
       .carousel-slide-content .hero-title { margin:8px 0 14px; font-size:32px; }
       .carousel-slide-content .hero-title a { color:#fff !important; }
       .carousel-slide-content .hero-title a:hover { color:var(--accent-h) !important; }
-      .carousel-btn { position:absolute; top:50%; transform:translateY(-50%); z-index:20; width:46px; height:46px; border-radius:50%; background:rgba(10,13,20,.75); border:1px solid rgba(255,255,255,.12); color:#fff; font-size:24px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s var(--ease); backdrop-filter:blur(8px); }
+      .carousel-btn { position:absolute; top:50%; transform:translateY(-50%); z-index:20; width:48px; height:48px; border-radius:50%; background:rgba(10,13,20,.75); border:1px solid rgba(255,255,255,.12); color:#fff; font-size:24px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s var(--ease); backdrop-filter:blur(8px); }
       .carousel-btn:hover { background:var(--primary); border-color:var(--primary); box-shadow:0 0 16px var(--primary-glow); }
       .carousel-btn.prev { left:18px; }
       .carousel-btn.next { right:18px; }
       .carousel-dots { position:absolute; bottom:22px; left:44px; z-index:20; display:flex; gap:8px; align-items:center; }
-      .carousel-dot { width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,.3); border:none; cursor:pointer; padding:0; transition:all .35s var(--ease); }
+      /* Phase 12: Touch target expansion for carousel dots (minimum 44x44 hit area) */
+      .carousel-dot { width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,.3); border:none; cursor:pointer; padding:0; transition:all .35s var(--ease); position:relative; }
+      .carousel-dot::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; }
       .carousel-dot.active { background:#fff; width:26px; }
-      .carousel-progress { position:absolute; bottom:0; left:0; height:3px; background:linear-gradient(to right,var(--primary),var(--accent)); width:0%; z-index:20; border-radius:0 2px 2px 0; }
+      /* Phase 8: Composited transform animation — avoids layout-triggering width change */
+      .carousel-progress { position:absolute; bottom:0; left:0; height:3px; background:linear-gradient(to right,var(--primary),var(--accent)); width:100%; z-index:20; border-radius:0 2px 2px 0; transform:scaleX(0); transform-origin:left; will-change:transform; }
       @media (max-width:600px) { .carousel-slide { padding:28px 20px; min-height:320px; } .carousel-slide-content .hero-title { font-size:22px; } .carousel-btn { display:none; } }
 
       /* ---- SEARCH FORM ---- */
@@ -285,7 +305,7 @@
       .search-input { padding:8px 36px 8px 14px; border-radius:20px; background:rgba(255,255,255,.05); border:1px solid var(--border); color:var(--text-1); font-size:13px; font-family:var(--font-body); width:200px; transition:all .25s var(--ease); }
       .search-input::placeholder { color:var(--text-3); }
       .search-input:focus { outline:none; border-color:var(--primary); background:var(--bg-card); width:260px; box-shadow:0 0 0 3px var(--primary-glow); }
-      .search-submit { position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-3); cursor:pointer; font-size:14px; padding:0; }
+      .search-submit { position:absolute; right:4px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-3); cursor:pointer; font-size:14px; min-width:44px; min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:0; }
       .search-submit:hover { color:var(--text-1); }
 
       /* ---- HAMBURGER / MOBILE MENU ---- */
@@ -312,9 +332,26 @@
       .adsense-banner .adsense-slot { width:100%; min-height:90px; }
       .adsense-banner ins.adsbygoogle, .adsense-banner .adsbygoogle { display:block !important; width:100% !important; min-height:90px !important; margin:0 auto !important; background:transparent !important; border:none !important; }
 
+      /* ---- JOBHARDER AD WIDGET CONTAINERS ---- */
+      .jobharder-ad-container { width:100%; max-width:100%; overflow:hidden; margin:0 auto; text-align:center; }
+      .header-ad-container { margin:8px auto 4px; }
+      .header-ad-container:empty { display:none; }
+      .sidebar-ad-container { width:100%; overflow:hidden; }
+      .sidebar-ad-container:empty { display:none; }
+      .article-ad-container { width:100%; max-width:100%; overflow:hidden; margin:20px auto; }
+      .article-ad-container:empty { display:none; }
+      .footer-ad-container { width:100%; max-width:100%; overflow:hidden; margin:0 auto; padding:12px 0; text-align:center; }
+      .footer-ad-container:empty { display:none; }
+      .jobharder-ad-container ins.adsbygoogle,
+      .jobharder-ad-container .adsbygoogle { display:block !important; width:100% !important; margin:0 auto !important; }
+      .jobharder-ad-container:empty { display:none !important; margin:0 !important; padding:0 !important; }
+
       /* ---- JOBS TOP STRIP (horizontal, below header ad) ---- */
       .jobs-top-strip { background:transparent; padding:12px 0; }
-      .jobs-top-track { display:flex; gap:18px; align-items:center; overflow:hidden; padding:8px 0; }
+      .jobs-top-track { display:flex; gap:18px; align-items:center; overflow:hidden; padding:8px 0; width:100%; position:relative; }
+      .jobs-top-track-inner { display:flex; gap:18px; align-items:center; flex-shrink:0; min-width:100%; animation:jobsTicker 32s linear infinite; will-change:transform; }
+      .jobs-top-track:hover .jobs-top-track-inner, .jobs-top-track-inner:hover { animation-play-state:paused; }
+      @keyframes jobsTicker { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
       .jobs-top-item { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; background:var(--bg-card); border:1px solid var(--border); color:var(--text-2); font-weight:700; font-size:13px; text-decoration:none; white-space:nowrap; transition:transform .2s var(--ease), color .15s; }
       .jobs-top-item:hover { transform:translateY(-2px); color:var(--primary-h); }
       .jobs-top-strip .container { padding-left:24px; padding-right:24px; }
@@ -350,7 +387,7 @@
       .hero-title { margin:0 0 16px; font-family:var(--font-title); font-size:36px; font-weight:900; line-height:1.15; letter-spacing:-1px; }
       .hero-excerpt { margin:0 0 24px; font-size:15px; color:var(--text-2); }
       .hero-meta { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-3); margin-bottom:24px; }
-      .btn-primary { display:inline-flex; align-items:center; gap:8px; padding:12px 24px; border-radius:30px; background:linear-gradient(135deg,var(--accent),#ea580c); color:var(--bg-darker); font-size:14px; font-weight:700; box-shadow:0 4px 15px var(--accent-glow); transition:all .2s var(--ease); }
+      .btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; padding:12px 24px; border-radius:30px; background:linear-gradient(135deg,var(--accent),#ea580c); color:var(--bg-darker); font-size:14px; font-weight:700; box-shadow:0 4px 15px var(--accent-glow); transition:all .2s var(--ease); }
       .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 20px var(--accent-glow); }
       .hero-side { padding:24px; border-radius:20px; background:var(--bg-card); border:1px solid var(--border); }
       .hero-side-title { margin:0 0 16px; font-family:var(--font-title); font-size:18px; font-weight:800; border-bottom:2px solid var(--border); padding-bottom:10px; }
@@ -419,7 +456,28 @@
       .single-post-body * { max-width:100% !important; box-sizing:border-box; }
       .single-post-body p, .single-post-body div, .single-post-body span, .single-post-body h1, .single-post-body h2, .single-post-body h3, .single-post-body h4 { white-space:normal !important; overflow-wrap:break-word !important; word-wrap:break-word !important; }
       .single-post-body table, .single-post-body pre { max-width:100% !important; overflow-x:auto !important; display:block; white-space:pre-wrap; word-wrap:break-word; }
-      .single-post-body img { border-radius:16px; margin:20px 0; box-shadow:var(--shadow-md); max-width:100%; height:auto; }
+      .single-post-body img { border-radius:16px; margin:20px 0; box-shadow:var(--shadow-md); max-width:100%; height:auto; aspect-ratio:auto; content-visibility:auto; }
+      /* High-contrast WCAG 4.5:1 ratio for author boxes in articles */
+      .single-post-body div[style*="background: rgb(244"],
+      .single-post-body div[style*="background: rgb(234"],
+      .single-post-body div[style*="background:#f"],
+      .single-post-body div[style*="background: #f"] {
+        color: #0f172a !important;
+      }
+      .single-post-body div[style*="background: rgb(244"] p,
+      .single-post-body div[style*="background: rgb(234"] p,
+      .single-post-body div[style*="background: rgb(244"] strong,
+      .single-post-body div[style*="background: rgb(234"] strong,
+      .single-post-body div[style*="background:#f"] p,
+      .single-post-body div[style*="background:#f"] strong {
+        color: #0f172a !important;
+      }
+      .single-post-body div[style*="background: rgb(244"] a,
+      .single-post-body div[style*="background: rgb(234"] a,
+      .single-post-body div[style*="background:#f"] a {
+        color: #1d4ed8 !important;
+        text-decoration: underline;
+      }
       .single-post-body a { color:var(--primary-h); text-decoration:underline; overflow-wrap:break-word; word-wrap:break-word; }
       .single-post-body iframe,
       .single-post-body video,
@@ -502,7 +560,16 @@
       .video-thumb::after { content:'\25B6'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; background:rgba(10,13,20,.85); border:1px solid rgba(255,255,255,.2); border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center; font-size:16px; backdrop-filter:blur(4px); transition:all .2s var(--ease); padding-left:3px; }
       .video-card:hover .video-thumb::after { background:var(--accent); color:var(--bg-darker); transform:translate(-50%,-50%) scale(1.1); box-shadow:0 0 15px var(--accent-glow); }
       .video-body { display:flex; flex-direction:column; justify-content:center; background:transparent !important; }
-      .video-tag { display:inline-block !important; width:fit-content !important; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; color:var(--primary-h); background:rgba(37,99,235,.15) !important; margin-bottom:8px; }
+      /* Phase 10 a11y: video-tag contrast upgraded to #60a5fa (>8.5:1 ratio) */
+      .video-tag { display:inline-block !important; width:fit-content !important; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; color:#60a5fa; background:rgba(37,99,235,.2) !important; margin-bottom:8px; }
+
+      /* Phase 2: Lite YouTube Facade — 0 initial payload, plays on interaction */
+      .lite-yt-facade { position:relative; width:100%; aspect-ratio:16/9; min-height:240px; background:#000; border-radius:16px; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); box-shadow:var(--shadow-md); margin:20px 0; }
+      .lite-yt-facade img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transition:transform .3s var(--ease), opacity .3s var(--ease); }
+      .lite-yt-facade:hover img { transform:scale(1.03); opacity:.9; }
+      .lite-yt-play { position:relative; z-index:2; width:68px; height:48px; background:rgba(33,33,33,.8); border:none; border-radius:14px; cursor:pointer; transition:background .2s var(--ease), transform .2s var(--ease); display:flex; align-items:center; justify-content:center; }
+      .lite-yt-facade:hover .lite-yt-play { background:#f00; transform:scale(1.1); }
+      .lite-yt-play::before { content:''; border-style:solid; border-width:10px 0 10px 18px; border-color:transparent transparent transparent #fff; }
 
       /* ---- SIDEBAR ---- */
       .sidebar { display:flex; flex-direction:column; gap:24px; }
@@ -541,7 +608,9 @@
       .footer-column li { margin-bottom:8px; }
       .footer-column a { color:var(--text-2); }
       .footer-column a:hover { color:var(--primary-h); }
-      .footer-meta p { margin:0 0 6px; color:var(--text-3); }
+      .footer-meta p { margin:0 0 6px; color:var(--text-2); }
+      .footer-meta a { color:var(--text-2); text-decoration:underline; }
+      .footer-meta a:hover { color:#fff; }
 
       /* ---- PRINT STYLESHEET ---- */
       @media print {
@@ -558,6 +627,9 @@
       /* ---- RESPONSIVE ---- */
       @media (max-width:900px) {
         .hero-inner, .layout { grid-template-columns:minmax(0,1fr); }
+        .content-column { order:1; }
+        .topics-sidebar { order:2; }
+        .sidebar { order:3; }
         .post-card, .video-card { grid-template-columns:140px minmax(0,1fr); }
         .hero-main { min-height:300px; padding:24px; }
         .hero-title { font-size:26px; }
@@ -617,6 +689,66 @@
         .carousel-slide-content .hero-title { font-size:20px; line-height:1.25; margin:6px 0 10px; }
         .footer-inner { grid-template-columns:1fr; }
       }
+
+      .cookie-banner {
+        position:fixed;
+        left:0;
+        right:0;
+        bottom:0;
+        z-index:9999;
+        display:flex;
+        justify-content:center;
+        padding:12px 16px;
+        background:rgba(15,23,42,.94);
+        backdrop-filter:blur(16px);
+        box-shadow:0 -10px 30px rgba(0,0,0,.35);
+      }
+      .cookie-banner-inner {
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        justify-content:space-between;
+        gap:12px;
+        width:100%;
+        max-width:1180px;
+        padding:14px 18px;
+        border-radius:16px;
+        background:rgba(15,23,42,.96);
+        border:1px solid rgba(255,255,255,.08);
+      }
+      .cookie-banner-copy {
+        color:#f8fafc;
+        font-size:14px;
+        line-height:1.6;
+      }
+      .cookie-banner-copy strong { color:#ffffff; }
+      .cookie-banner-actions {
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        justify-content:flex-end;
+      }
+      .cookie-accept-btn,
+      .cookie-close-btn {
+        min-width:120px;
+        border:none;
+        border-radius:999px;
+        padding:12px 18px;
+        font-weight:700;
+        cursor:pointer;
+        transition:transform .2s ease, box-shadow .2s ease, background .2s ease;
+      }
+      .cookie-accept-btn {
+        background:linear-gradient(135deg,#2563eb,#f97316);
+        color:#fff;
+      }
+      .cookie-accept-btn:hover { transform:translateY(-1px); box-shadow:0 12px 30px rgba(37,99,235,.25); }
+      .cookie-close-btn {
+        background:rgba(255,255,255,.08);
+        color:#e2e8f0;
+      }
+      .cookie-close-btn:hover { transform:translateY(-1px); background:rgba(255,255,255,.14); }
+      .cookie-banner.hide { display:none !important; }
     ]]></b:skin>
   </head>
 
@@ -625,9 +757,49 @@
     <div class='watermark-diagonal'>JobhardER</div>
     <div class='watermark-stamp'>JobhardER</div>
     <div class='hidden-watermark'>AUTHORIZE COPING IS PROHIBITED JobhardER � Jobs | Career Guides | Application Support.</div>
+    <div id='cookieBanner' class='cookie-banner'>
+      <div class='cookie-banner-inner'>
+        <div class='cookie-banner-copy'>
+          <strong>We use cookies</strong> to improve your experience and remember your preferences.
+          <span>By continuing, you agree to our use of cookies.</span>
+        </div>
+        <div class='cookie-banner-actions'>
+          <button class='cookie-close-btn' id='cookieDismissBtn'>No thanks</button>
+          <button class='cookie-accept-btn' id='cookieAcceptBtn'>Accept</button>
+        </div>
+      </div>
+    </div>
     <b:section id='ga4-analytics' showaddelement='yes'>
-      <b:widget id='HTML1' locked='false' title='Google Analytics 4 � Paste GA4 script here' type='HTML'>
+      <b:widget id='HTML1' locked='false' title='Google Analytics 4' type='HTML'>
         <b:includable id='main'>
+          <script>
+          //<![CDATA[
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-ZNZSX0P0TD');
+
+          (function(){
+            var gaLoaded = false;
+            function loadGA(){
+              if(gaLoaded) return;
+              gaLoaded = true;
+              var s = document.createElement('script');
+              s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZNZSX0P0TD';
+              s.async = true;
+              (document.head || document.body).appendChild(s);
+            }
+            if('requestIdleCallback' in window){
+              requestIdleCallback(loadGA, {timeout: 2000});
+            } else {
+              window.addEventListener('load', function(){ setTimeout(loadGA, 800); });
+            }
+            ['scroll', 'touchstart', 'mousemove', 'keydown'].forEach(function(ev){
+              window.addEventListener(ev, loadGA, {once:true, passive:true});
+            });
+          })();
+          //]]>
+          </script>
         </b:includable>
       </b:widget>
     </b:section>
@@ -643,7 +815,7 @@
                 <b:if cond='data:useImage or data:image or data:sourceUrl'>
                   <b:if cond='data:imagePlacement == "BEHIND"'>
                     <div style='display:flex;align-items:center;gap:12px;'>
-                      <a expr:href='data:blog.homepageUrl'><img expr:alt='data:title ? data:title : data:blog.title' expr:src='data:image ? data:image : data:sourceUrl' style='max-height:55px;width:auto;border-radius:8px;'/></a>
+                      <a expr:href='data:blog.homepageUrl'><img decoding='async' expr:alt='data:title ? data:title : data:blog.title' expr:src='data:image ? data:image : data:sourceUrl' height='55' width='160' style='max-height:55px;height:55px;width:auto;aspect-ratio:160/55;border-radius:8px;'/></a>
                       <div>
                         <h1 class='brand-name'><a expr:href='data:blog.homepageUrl'><data:title/></a></h1>
                         <p class='brand-tagline'><data:description/></p>
@@ -651,7 +823,7 @@
                     </div>
                   <b:else/>
                     <a expr:href='data:blog.homepageUrl' style='display:inline-block;'>
-                      <img expr:alt='data:title ? data:title : data:blog.title' expr:src='data:image ? data:image : data:sourceUrl' style='max-height:55px;width:auto;border-radius:8px;'/>
+                      <img decoding='async' expr:alt='data:title ? data:title : data:blog.title' expr:src='data:image ? data:image : data:sourceUrl' height='55' width='160' style='max-height:55px;height:55px;width:auto;aspect-ratio:160/55;border-radius:8px;'/>
                     </a>
                   </b:if>
                 <b:else/>
@@ -718,19 +890,34 @@
       </div>
     </header>
 
-    <div class='container adsense-container'>
+    <div class='container'>
       <b:section id='header-ad-banner' showaddelement='yes'>
-        <b:widget id='HTML2' locked='false' title='Header AdSense Banner (728x90)' type='HTML'>
+        <b:widget id='HTML2' locked='false' title='HEADER AD' type='HTML'>
           <b:includable id='main'>
-            <div class='adsense-banner'>
-              <ins class='adsbygoogle adsense-slot'
-                   style='display:block;width:100%;min-height:90px'
-                   data-ad-client='ca-pub-8347952847217732'
-                   data-ad-slot='9963890350'
-                   data-ad-format='auto'
-                   data-full-width-responsive='true'></ins>
-              <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            <div id='jhad-slot-2'>
+              <div id='jhad-data-2' style='display:none;'>
+                <data:content escape='false'/>
+              </div>
             </div>
+            <script>//<![CDATA[
+            (function(){
+              var d=document.getElementById('jhad-data-2');
+              var s=document.getElementById('jhad-slot-2');
+              if(!d||!s)return;
+              var h=d.innerHTML;
+              if(!h||!h.replace(/\s/g,''))return;
+              s.innerHTML=h;
+              var ss=s.querySelectorAll('script');
+              for(var i=0;i<ss.length;i++){
+                if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                var n=document.createElement('script');
+                if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                else{n.textContent=ss[i].textContent;}
+                ss[i].parentNode.replaceChild(n,ss[i]);
+              }
+            })();
+            //]]></script>
           </b:includable>
         </b:widget>
       </b:section>
@@ -752,21 +939,14 @@
       (function(){
         var track = document.getElementById('jobsTopTrack');
         if(!track) return;
-        // duplicate items for smooth infinite scroll
-        track.innerHTML = track.innerHTML + track.innerHTML;
-        var speed = 1; // px per tick
-        var tick = 20; // ms
-        var running = true;
-        var maxScroll = track.scrollWidth / 2;
-        var timer = setInterval(function(){
-          if(!running) return;
-          track.scrollLeft += speed;
-          if(track.scrollLeft >= maxScroll) track.scrollLeft = 0;
-        }, tick);
-        track.addEventListener('mouseenter', function(){ running = false; });
-        track.addEventListener('mouseleave', function(){ running = true; });
-        // recalc on resize
-        window.addEventListener('resize', function(){ maxScroll = track.scrollWidth / 2; });
+        var inner = document.createElement('div');
+        inner.className = 'jobs-top-track-inner';
+        while(track.firstChild){
+          inner.appendChild(track.firstChild);
+        }
+        var clone = inner.cloneNode(true);
+        inner.innerHTML = inner.innerHTML + clone.innerHTML;
+        track.appendChild(inner);
       })();
     //]]></script>
 
@@ -780,7 +960,7 @@
           <b:widget id='HTML11' locked='false' title='Live Scores' type='HTML'>
             <b:includable id='main'>
               <b:if cond='data:content != ""'>
-                <div class='scores-inner'><data:content/></div>
+                <div class='scores-inner'><data:content escape='false'/></div>
               <b:else/>
                 <div class='scores-inner'>
                   <a class='score-item' href='/search/label/Latest-Jobs'>
@@ -817,8 +997,51 @@
           <b:widget id='HTML10' locked='false' title='Career Resources' type='HTML'>
             <b:includable id='main'>
               <b:if cond='data:content != ""'>
-                <data:content/>
+                <!-- YouTube Facade Inert Container: eliminates upfront iframe & base.js load -->
+                <template id='career-res-tpl'>
+                  <data:content escape='false'/>
+                </template>
+                <div id='career-res-slot'></div>
+                <script>//<![CDATA[
+                (function(){
+                  var tpl = document.getElementById('career-res-tpl');
+                  var slot = document.getElementById('career-res-slot');
+                  if(!tpl || !slot) return;
+                  var html = tpl.innerHTML;
+                  var m = html.match(/(?:embed\/|v=|vi=)([a-zA-Z0-9_-]{11})/);
+                  if(m && m[1]){
+                    var vId = m[1];
+                    var facade = document.createElement('div');
+                    facade.className = 'lite-yt-facade';
+                    facade.setAttribute('role', 'button');
+                    facade.setAttribute('tabindex', '0');
+                    facade.setAttribute('aria-label', 'Play YouTube Video');
+                    facade.innerHTML = '<img src="https://i.ytimg.com/vi/' + vId + '/hqdefault.jpg" alt="Video preview thumbnail" loading="lazy" decoding="async"/><button class="lite-yt-play" aria-label="Play video"></button>';
+                    function playVideo(){
+                      var ifr = document.createElement('iframe');
+                      ifr.width = '100%';
+                      ifr.height = '100%';
+                      ifr.src = 'https://www.youtube.com/embed/' + vId + '?autoplay=1';
+                      ifr.setAttribute('title', 'YouTube video player');
+                      ifr.setAttribute('frameborder', '0');
+                      ifr.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                      ifr.setAttribute('allowfullscreen', 'true');
+                      ifr.style.width = '100%';
+                      ifr.style.aspectRatio = '16 / 9';
+                      ifr.style.borderRadius = '16px';
+                      slot.innerHTML = '';
+                      slot.appendChild(ifr);
+                    }
+                    facade.addEventListener('click', playVideo, {once:true});
+                    facade.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ playVideo(); } }, {once:true});
+                    slot.appendChild(facade);
+                  } else {
+                    slot.innerHTML = html;
+                  }
+                })();
+                //]]></script>
               <b:else/>
+                <!-- Phase 2: YouTube facade fallback placeholder when no custom content set -->
                 <div style='background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:32px; color:var(--text-2); text-align:center;'>
                   <h2 style='margin:0 0 16px; font-size:24px; font-weight:800; color:var(--text-1);'>Career Resources</h2>
                   <p style='margin:0; font-size:16px; line-height:1.6;'>Add your career advice, application tips, and job search resources here in the Layout Editor. This widget area is now ready for your own custom HTML.</p>
@@ -853,6 +1076,10 @@
 
     <b:if cond='data:view.isHomepage'>
       <div class='container' style='margin-top:24px;'>
+        <div class='seo-intro' style='background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 32px; margin-bottom: 24px;'>
+          <h1 style='margin-top:0; font-size: 28px; font-weight: 800; color: var(--text-1);'>JobhardER | Jobs, Career Guides &amp; Application Tips</h1>
+          <p style='font-size: 16px; line-height: 1.6; color: var(--text-2); margin-bottom: 0;'>Welcome to JobhardER, your ultimate destination for the latest <strong>Nigerian jobs</strong> and career advancement opportunities. Our platform is dedicated to connecting ambitious professionals and fresh graduates with top-tier employers across the country. Whether you are seeking a lucrative <strong>graduate trainee</strong> program to kickstart your career, or you need expert <strong>career guides</strong> to ace your next interview, we provide verified, up-to-date resources. Stay informed with our daily <strong>application tips</strong> and news, offering step-by-step guidance on how to navigate recruitment processes in both the private sector and government agencies. We understand the challenges of the job market, which is why our expert-curated content goes beyond mere listings. Explore our comprehensive guides on CV writing, interview preparation, and salary negotiations to empower your job search journey. Join thousands of successful candidates who rely on JobhardER to find legitimate opportunities and build rewarding careers in Nigeria and beyond.</p>
+        </div>
         <div class='hero-carousel' id='heroCarousel'>
           <div class='carousel-track' id='carouselTrack'>
             <b:section id='hero-slider-section' showaddelement='yes' title='Hero Post Carousel'>
@@ -868,7 +1095,7 @@
                         </b:if>
                         <h2 class='hero-title'><a expr:href='data:post.url' style='color:#fff;'><data:post.title/></a></h2>
                         <b:if cond='data:post.snippet'>
-                          <p class='hero-excerpt'><data:post.snippet/></p>
+                          <!-- Snippet hidden: may contain raw JSON-LD. JS carousel handles excerpts. -->
                         </b:if>
                         <a class='btn-primary' expr:href='data:post.url'>Read Story &#8594;</a>
                       </div>
@@ -939,8 +1166,16 @@
                          .replace(/=s\d+(-[a-z0-9-]+)?/i, '=s1600')
                          .replace(/=w\d+-h\d+-[^/]+/i, '=w1600-h900');
               }
-              var snippet = e.summary ? e.summary.$t.replace(/<[^>]+>/g,'') : (e.content ? e.content.$t.replace(/<[^>]+>/g,'') : '');
-              if(snippet.length>130) snippet=snippet.substring(0,130)+'�';
+              var rawContent = e.summary ? e.summary.$t : (e.content ? e.content.$t : '');
+              // 1. Strip <script> blocks (catches JSON-LD in <script type="application/ld+json">)
+              rawContent = rawContent.replace(/<script[\s\S]*?<\/script>/gi, '');
+              // 2. Strip all remaining HTML tags
+              var snippet = rawContent.replace(/<[^>]+>/g,'').trim();
+              // 3. Strip any residual JSON objects (e.g. { "@context"... leaked as text)
+              snippet = snippet.replace(/\{[\s\S]*?\}/g, '').trim();
+              // 4. Collapse extra whitespace
+              snippet = snippet.replace(/\s+/g, ' ').trim();
+              if(snippet.length>130) snippet=snippet.substring(0,130)+'…';
               var cat = (e.category && e.category.length) ? e.category[0].term : 'Featured Job Story';
               return { url: url, title: title, img: img, snippet: snippet, cat: cat };
             }
@@ -1009,12 +1244,13 @@
                 dots[d].classList.toggle('active', d===current);
               }
               if(progressEl){
+                /* Phase 8: Use composited transform:scaleX() — no layout thrashing */
                 progressEl.style.transition = 'none';
-                progressEl.style.width = '0%';
+                progressEl.style.transform = 'scaleX(0)';
                 requestAnimationFrame(function(){
                   requestAnimationFrame(function(){
-                    progressEl.style.transition = 'width 5s linear';
-                    progressEl.style.width = '100%';
+                    progressEl.style.transition = 'transform 5s linear';
+                    progressEl.style.transform = 'scaleX(1)';
                   });
                 });
               }
@@ -1049,6 +1285,64 @@
         <aside class='topics-sidebar'>
           <!-- Left sidebar Jobs Update removed (now displayed under header) -->
 
+          <b:section id='sidebar-topics' showaddelement='yes' title='Topics'>
+            <b:widget id='HTML12' locked='false' title='Topics' type='HTML'>
+              <b:includable id='main'>
+                <div class='sidebar-card topics-card'>
+                  <h3 class='sidebar-title'>Topics</h3>
+                  <b:if cond='data:content != ""'>
+                    <ul class='topic-list'>
+                      <data:content escape='false'/>
+                    </ul>
+                  <b:else/>
+                    <ul class='topic-list'>
+                      <li><a href='/search/label/First-Job-and-Early-Career'>First Job &amp; Early Career</a></li>
+                      <li><a href='/search/label/Salaries-and-Cost-of-Living'>Salaries &amp; Cost of Living</a></li>
+                      <li><a href='/search/label/Remote-and-Hybrid-Work'>Remote &amp; Hybrid Work</a></li>
+                      <li><a href='/search/label/Internships-and-SIWES'>Internships &amp; SIWES</a></li>
+                      <li><a href='/search/label/CV-and-Interview'>CV &amp; Interview</a></li>
+                      <li><a href='/search/label/Tech-Careers-and-Digital-Skills'>Tech Careers &amp; Digital Skills</a></li>
+                      <li><a href='/search/label/Government-Jobs'>Government Jobs</a></li>
+                      <li><a href='/search/label/Scam-Protection'>Scam Protection</a></li>
+                    </ul>
+                  </b:if>
+                </div>
+              </b:includable>
+            </b:widget>
+          </b:section>
+
+          <!-- Vertical AdSense slot moved below Topics -->
+          <b:section id='sidebar-ads' showaddelement='yes' title='Left Sidebar Ad'>
+            <b:widget id='HTML13' locked='false' title='SIDEBAR AD' type='HTML'>
+              <b:includable id='main'>
+                <div id='jhad-slot-13'>
+                  <div id='jhad-data-13' style='display:none;'>
+                    <data:content escape='false'/>
+                  </div>
+                </div>
+                <script>//<![CDATA[
+                (function(){
+                  var d=document.getElementById('jhad-data-13');
+                  var s=document.getElementById('jhad-slot-13');
+                  if(!d||!s)return;
+                  var h=d.innerHTML;
+                  if(!h||!h.replace(/\s/g,''))return;
+                  s.innerHTML=h;
+                  var ss=s.querySelectorAll('script');
+                  for(var i=0;i<ss.length;i++){
+                    if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                    if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                    var n=document.createElement('script');
+                    if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                    else{n.textContent=ss[i].textContent;}
+                    ss[i].parentNode.replaceChild(n,ss[i]);
+                  }
+                })();
+                //]]></script>
+              </b:includable>
+            </b:widget>
+          </b:section>
+
           <div class='sidebar-card toc-sidebar' id='toc-container' style='display:none'>
             <div class='toc-header'>
               <p class='toc-title'>📑 Table of Contents</p>
@@ -1057,47 +1351,42 @@
             <ol class='toc-list' id='toc-list'></ol>
           </div>
 
-          <b:section id='sidebar-topics' showaddelement='yes' title='Topics'>
-            <b:widget id='HTML12' locked='false' title='Topics' type='HTML'>
-              <b:includable id='main'>
-                <div class='sidebar-card topics-card'>
-                  <h3 class='sidebar-title'>Topics</h3>
-                  <ul class='topic-list'>
-                    <li><a href='/search/label/First-Job-and-Early-Career'>First Job &amp; Early Career</a></li>
-                    <li><a href='/search/label/Salaries-and-Cost-of-Living'>Salaries &amp; Cost of Living</a></li>
-                    <li><a href='/search/label/Remote-and-Hybrid-Work'>Remote &amp; Hybrid Work</a></li>
-                    <li><a href='/search/label/Internships-and-SIWES'>Internships &amp; SIWES</a></li>
-                    <li><a href='/search/label/CV-and-Interview'>CV &amp; Interview</a></li>
-                    <li><a href='/search/label/Tech-Careers-and-Digital-Skills'>Tech Careers &amp; Digital Skills</a></li>
-                    <li><a href='/search/label/Government-Jobs'>Government Jobs</a></li>
-                    <li><a href='/search/label/Scam-Protection'>Scam Protection</a></li>
-                  </ul>
-                </div>
-              </b:includable>
-            </b:widget>
-          </b:section>
-
-          <!-- Vertical AdSense slot moved below Topics -->
-          <b:section id='sidebar-ads' showaddelement='yes' title='AdSense Vertical'>
-            <b:widget id='HTML13' locked='false' title='AdSense Vertical' type='HTML'>
-              <b:includable id='main'>
-                <div class='sidebar-card topics-card'>
-                  <div class='vertical-adsense'>
-                    <ins class='adsbygoogle adsense-slot'
-                         style='display:block;width:100%;min-height:300px'
-                         data-ad-client='ca-pub-8347952847217732'
-                         data-ad-slot='2451429517'
-                         data-ad-format='autorelaxed'
-                         data-full-width-responsive='true'></ins>
-                    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                  </div>
-                </div>
-              </b:includable>
-            </b:widget>
-          </b:section>
-
         </aside>
         <section class='content-column'>
+          <div class='homepage-intro' style='margin-bottom:24px;padding:24px 26px;border:1px solid rgba(255,255,255,.08);border-radius:18px;background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(249,115,22,.08));box-shadow:0 10px 30px rgba(0,0,0,.18);'>
+            <h1 style='margin:0 0 10px;font-size:28px;line-height:1.2;'>JobhardER | Jobs, Career Guides &amp; Application Tips</h1>
+            <p style='margin:0;font-size:15px;line-height:1.7;color:#cbd5e1;'>Discover verified Nigerian jobs, graduate trainee opportunities, practical career guides, and fresh application tips in one trusted place. Whether you are searching for your next role, preparing for an interview, or staying updated on new openings, JobhardER helps you stay informed and ready.</p>
+          </div>
+          <b:section id='article-top-ad' showaddelement='yes'>
+            <b:widget id='HTML14' locked='false' title='ARTICLE TOP AD' type='HTML'>
+              <b:includable id='main'>
+                <div id='jhad-slot-14'>
+                  <div id='jhad-data-14' style='display:none;'>
+                    <data:content escape='false'/>
+                  </div>
+                </div>
+                <script>//<![CDATA[
+                (function(){
+                  var d=document.getElementById('jhad-data-14');
+                  var s=document.getElementById('jhad-slot-14');
+                  if(!d||!s)return;
+                  var h=d.innerHTML;
+                  if(!h||!h.replace(/\s/g,''))return;
+                  s.innerHTML=h;
+                  var ss = s.querySelectorAll('script');
+                  for(var i=0;i<ss.length;i++){
+                    if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                    var n=document.createElement('script');
+                    if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                    if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                    else{n.textContent=ss[i].textContent;}
+                    ss[i].parentNode.replaceChild(n,ss[i]);
+                  }
+                })();
+                //]]></script>
+              </b:includable>
+            </b:widget>
+          </b:section>
           <b:section id='main-blog-posts' showaddelement='yes'>
             <b:widget id='Blog1' locked='false' title='Blog Posts' type='Blog'>
               <b:includable id='main'>
@@ -1126,31 +1415,8 @@
                         <span>�</span>
                         <span><data:post.commentCount/> Comments</span>
                       </div>
-                      <div class='adsense-container'>
-                        <div class='adsense-banner'>
-                          <ins class='adsbygoogle adsense-slot'
-                               style='display:block'
-                               data-ad-client='ca-pub-8347952847217732'
-                               data-ad-slot='2890413216'
-                               data-ad-format='auto'
-                               data-full-width-responsive='true'></ins>
-                          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                        </div>
-                      </div>
                       <div class='single-post-body' id='post-body'>
                         <data:post.body/>
-                      </div>
-                      <div class='adsense-container'>
-                        <div class='adsense-banner'>
-                          <ins class='adsbygoogle adsense-slot'
-                               style='display:block;width:100%;min-height:250px'
-                               data-ad-client='ca-pub-8347952847217732'
-                               data-ad-slot='6773516583'
-                               data-ad-layout='in-article'
-                               data-ad-format='fluid'
-                               data-full-width-responsive='true'></ins>
-                          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                        </div>
                       </div>
                       <div class='share-buttons'>
                         <span class='share-label'>Share:</span>
@@ -1186,12 +1452,6 @@
                           <svg viewBox='0 0 24 24'><path d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'/></svg>
                           <span>Copy Link</span>
                         </button>
-                      </div>
-                      <div class='adsense-container'>
-                        <div class='adsense-banner'>
-                          <span class='adsense-label'>Advertisement</span>
-                          <span class='adsense-placeholder'>Replace this block with your AdSense ad unit</span>
-                        </div>
                       </div>
                       <div class='related-posts' id='related-posts-container' style='display:none'>
                         <h3 class='section-title'>Related Stories</h3>
@@ -1361,6 +1621,7 @@
               </b:includable>
               <b:includable id='commentForm'>
                 <b:if cond='data:post.embedCommentForm'>
+                  <!-- Phase 11: Accessible iframe title for comment editor -->
                   <iframe allowtransparency='true'
                     expr:src='data:post.commentFormIframeSrc'
                     class='blogger-iframe-colorize blogger-comment-from-post'
@@ -1369,8 +1630,50 @@
                     id='comment-editor'
                     name='comment-editor'
                     scrolling='no'
+                    title='Leave a comment'
                     width='100%'/>
                 </b:if>
+              </b:includable>
+            </b:widget>
+          </b:section>
+
+          <b:section id='article-bottom-ad' showaddelement='yes'>
+            <b:widget id='HTML15' locked='false' title='ARTICLE BOTTOM AD' type='HTML'>
+              <b:includable id='main'>
+                <div id='jhad-slot-15'>
+                  <div id='jhad-data-15' style='display:none;'>
+                    <data:content escape='false'/>
+                  </div>
+                </div>
+                <script>//<![CDATA[
+                (function(){
+                  var d=document.getElementById('jhad-data-15');
+                  var s=document.getElementById('jhad-slot-15');
+                  if(!d||!s)return;
+                  var h=d.innerHTML;
+                  if(!h||!h.replace(/\s/g,''))return;
+                  s.innerHTML=h;
+                  var ss=s.querySelectorAll('script');
+                  for(var i=0;i<ss.length;i++){
+                    if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                    var n=document.createElement('script');
+                    if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                    if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                    else{n.textContent=ss[i].textContent;}
+                    ss[i].parentNode.replaceChild(n,ss[i]);
+                  }
+                })();
+                //]]></script>
+              </b:includable>
+            </b:widget>
+          </b:section>
+
+          <b:section id='article-mid-ad' showaddelement='yes'>
+            <b:widget id='HTML16' locked='false' title='ARTICLE MIDDLE AD' type='HTML'>
+              <b:includable id='main'>
+                <div id='jhad-mid-data' style='display:none;'>
+                  <data:content escape='false'/>
+                </div>
               </b:includable>
             </b:widget>
           </b:section>
@@ -1378,8 +1681,8 @@
           <b:if cond='data:view.isHomepage'>
             <section class='videos-row' id='videos'>
               <div class='section-header'>
-                <h2 class='section-title'>Latest Videos</h2>
-                <a class='section-link' expr:href='data:blog.homepageUrl + "search/label/Videos"'>View All</a>
+                <h2 class='section-title'>Resource Materials</h2>
+                <a class='section-link' expr:href='data:blog.homepageUrl + "search/label/Resource-Materials"'>View All</a>
               </div>
               <div class='card-grid' id='homeVideosGrid'>
               </div>
@@ -1401,13 +1704,13 @@
                     var m = e.content.$t.match(/<img[^>]+src=["']([^"']+)["']/i);
                     if(m) img = m[1];
                   }
-                  var cat = (e.category && e.category.length) ? e.category[0].term : 'Videos';
+                  var cat = (e.category && e.category.length) ? e.category[0].term : 'Resource Materials';
                   var art = document.createElement('article');
                   art.className = 'video-card';
                   art.onclick = function(){ location.href = url; };
                   art.innerHTML =
                     '<div class="video-thumb">' +
-                    (img ? '<img src="' + img + '" alt="" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1d4ed8,#f97316);"/>') +
+                    (img ? '<img src="' + img + '" alt="' + title + '" loading="lazy"/>' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1d4ed8,#f97316);"/>') +
                     '</div>' +
                     '<div class="video-body">' +
                     '<span class="video-tag">' + cat + '</span>' +
@@ -1431,7 +1734,7 @@
                 renderVideoCards(entries);
               };
               var s = document.createElement('script');
-              s.src = '/feeds/posts/default/-/Videos?alt=json-in-script&max-results=3&callback=flHomeVideosCB';
+              s.src = '/feeds/posts/default/-/Resource-Materials?alt=json-in-script&max-results=3&callback=flHomeVideosCB';
               document.head.appendChild(s);
             })();
             //]]></script>
@@ -1440,17 +1743,32 @@
 
         <aside class='sidebar'>
           <b:section id='sidebar-ad-top' showaddelement='yes'>
-            <b:widget id='HTML3' locked='false' title='Sidebar AdSense (300x250)' type='HTML'>
+            <b:widget id='HTML3' locked='false' title='SIDEBAR AD' type='HTML'>
               <b:includable id='main'>
-                <div class='adsense-banner' style='min-height:250px'>
-                  <ins class='adsbygoogle adsense-slot'
-                       style='display:block;width:100%;min-height:250px'
-                       data-ad-client='ca-pub-8347952847217732'
-                       data-ad-slot='6849538208'
-                       data-ad-format='autorelaxed'
-                       data-full-width-responsive='true'></ins>
-                  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                <div id='jhad-slot-3'>
+                  <div id='jhad-data-3' style='display:none;'>
+                    <data:content escape='false'/>
+                  </div>
                 </div>
+                <script>//<![CDATA[
+                (function(){
+                  var d=document.getElementById('jhad-data-3');
+                  var s=document.getElementById('jhad-slot-3');
+                  if(!d||!s)return;
+                  var h=d.innerHTML;
+                  if(!h||!h.replace(/\s/g,''))return;
+                  s.innerHTML=h;
+                  var ss=s.querySelectorAll('script');
+                  for(var i=0;i<ss.length;i++){
+                    if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                    var n=document.createElement('script');
+                    if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                    if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                    else{n.textContent=ss[i].textContent;}
+                    ss[i].parentNode.replaceChild(n,ss[i]);
+                  }
+                })();
+                //]]></script>
               </b:includable>
             </b:widget>
           </b:section>
@@ -1507,7 +1825,7 @@
                   </b:if>
                   <ul class='tag-list'>
                     <b:if cond='data:content != ""'>
-                      <data:content/>
+                      <data:content escape='false'/>
                     <b:else/>
                       <li><a href='/search/label/Graduate-Trainee'>#GraduateTrainee</a></li>
                       <li><a href='/search/label/Remote-Jobs'>#RemoteJobs</a></li>
@@ -1524,17 +1842,32 @@
           </b:section>
 
           <b:section id='sidebar-ad-bottom' showaddelement='yes'>
-            <b:widget id='HTML4' locked='false' title='Sidebar AdSense Sticky (300x600)' type='HTML'>
+            <b:widget id='HTML4' locked='false' title='SIDEBAR AD 2' type='HTML'>
               <b:includable id='main'>
-                <div class='adsense-banner' style='min-height:300px'>
-                  <ins class='adsbygoogle adsense-slot'
-                       style='display:block;width:100%;min-height:300px'
-                       data-ad-client='ca-pub-8347952847217732'
-                       data-ad-slot='2451429517'
-                       data-ad-format='autorelaxed'
-                       data-full-width-responsive='true'></ins>
-                  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+                <div id='jhad-slot-4'>
+                  <div id='jhad-data-4' style='display:none;'>
+                    <data:content escape='false'/>
+                  </div>
                 </div>
+                <script>//<![CDATA[
+                (function(){
+                  var d=document.getElementById('jhad-data-4');
+                  var s=document.getElementById('jhad-slot-4');
+                  if(!d||!s)return;
+                  var h=d.innerHTML;
+                  if(!h||!h.replace(/\s/g,''))return;
+                  s.innerHTML=h;
+                  var ss=s.querySelectorAll('script');
+                  for(var i=0;i<ss.length;i++){
+                    if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                    var n=document.createElement('script');
+                    if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                    if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                    else{n.textContent=ss[i].textContent;}
+                    ss[i].parentNode.replaceChild(n,ss[i]);
+                  }
+                })();
+                //]]></script>
               </b:includable>
             </b:widget>
           </b:section>
@@ -1542,12 +1875,16 @@
           <b:section id='league-newsletter' class='sidebar-card sidebar-newsletter' showaddelement='yes'>
             <b:widget id='HTML5' locked='false' title='Newsletter' type='HTML'>
               <b:includable id='main'>
-                <h3 class='sidebar-title'>Newsletter</h3>
-                <p>Get the latest job alerts, career tips, and application guides straight to your inbox.</p>
-                <form>
-                  <input placeholder='Enter your email' type='email'/>
-                  <button type='submit'>Subscribe</button>
-                </form>
+                <b:if cond='data:content != ""'>
+                  <data:content escape='false'/>
+                <b:else/>
+                  <h3 class='sidebar-title'>Newsletter</h3>
+                  <p>Get the latest job alerts, career tips, and application guides straight to your inbox.</p>
+                  <form>
+                    <input placeholder='Enter your email' type='email'/>
+                    <button type='submit'>Subscribe</button>
+                  </form>
+                </b:if>
               </b:includable>
             </b:widget>
           </b:section>
@@ -1555,19 +1892,34 @@
       </div>
     </main>
 
-    <div class='container adsense-container'>
+    <div class='container'>
       <b:section id='footer-ad-banner' showaddelement='yes'>
-        <b:widget id='HTML6' locked='false' title='Footer AdSense Banner (728x90)' type='HTML'>
+        <b:widget id='HTML6' locked='false' title='FOOTER AD' type='HTML'>
           <b:includable id='main'>
-            <div class='adsense-banner'>
-              <ins class='adsbygoogle adsense-slot'
-                   style='display:block;width:100%;min-height:90px'
-                   data-ad-client='ca-pub-8347952847217732'
-                   data-ad-slot='9963890350'
-                   data-ad-format='auto'
-                   data-full-width-responsive='true'></ins>
-              <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            <div id='jhad-slot-6'>
+              <div id='jhad-data-6' style='display:none;'>
+                <data:content escape='false'/>
+              </div>
             </div>
+            <script>//<![CDATA[
+            (function(){
+              var d=document.getElementById('jhad-data-6');
+              var s=document.getElementById('jhad-slot-6');
+              if(!d||!s)return;
+              var h=d.innerHTML;
+              if(!h||!h.replace(/\s/g,''))return;
+              s.innerHTML=h;
+              var ss=s.querySelectorAll('script');
+              for(var i=0;i<ss.length;i++){
+                if(ss[i].src && ss[i].src.indexOf('reloadly') !== -1){ ss[i].parentNode.removeChild(ss[i]); continue; }
+                if(ss[i].src && document.querySelector('script[src="'+ss[i].src+'"]')){ss[i].parentNode.removeChild(ss[i]);continue;}
+                var n=document.createElement('script');
+                if(ss[i].src){n.src=ss[i].src;n.async=true;}
+                else{n.textContent=ss[i].textContent;}
+                ss[i].parentNode.replaceChild(n,ss[i]);
+              }
+            })();
+            //]]></script>
           </b:includable>
         </b:widget>
       </b:section>
@@ -1585,7 +1937,7 @@
                   <h4>About <data:blog.title/></h4>
                 </b:if>
                 <b:if cond='data:content != ""'>
-                  <data:content/>
+                  <data:content escape='false'/>
                 <b:else/>
                   <p><data:blog.title/> is your trusted source for verified job openings, career advice, and application support in Nigeria.</p>
                 </b:if>
@@ -1621,25 +1973,23 @@
         </div>
         <div class='footer-column'>
           <b:section id='footer-connect-sec' showaddelement='yes' title='Footer Connect Links'>
-            <b:widget id='PageList3' locked='false' title='Connect' type='PageList'>
+            <b:widget id='HTML17' locked='false' title='Connect' type='HTML'>
               <b:includable id='main'>
-                <b:if cond='data:title != ""'>
-                  <h4><data:title/></h4>
+                <h4>Connect</h4>
+                <b:if cond='data:content != ""'>
+                  <ul>
+                    <data:content escape='false'/>
+                  </ul>
                 <b:else/>
-                  <h4>Connect</h4>
+                  <ul>
+                    <li><a href='https://facebook.com/' target='_blank'>Facebook</a></li>
+                    <li><a href='https://twitter.com/' target='_blank'>Twitter / X</a></li>
+                    <li><a href='https://instagram.com/' target='_blank'>Instagram</a></li>
+                    <li><a href='https://youtube.com/' target='_blank'>YouTube</a></li>
+                    <li><a href='https://linkedin.com/' target='_blank'>LinkedIn</a></li>
+                    <li><a href='https://www.tumblr.com/jobharder/' target='_blank'>Tumblr</a></li>
+                  </ul>
                 </b:if>
-                <ul>
-                  <b:if cond='data:links'>
-                    <b:loop values='data:links' var='link'>
-                      <li><a expr:href='data:link.href' target='_blank'><data:link.title/></a></li>
-                    </b:loop>
-                  <b:else/>
-                    <li><a href='https://youtube.com' target='_blank'>YouTube</a></li>
-                    <li><a href='https://tiktok.com' target='_blank'>TikTok</a></li>
-                    <li><a href='https://twitter.com' target='_blank'>Twitter / X</a></li>
-                    <li><a href='https://instagram.com' target='_blank'>Instagram</a></li>
-                  </b:if>
-                </ul>
               </b:includable>
             </b:widget>
           </b:section>
@@ -1649,7 +1999,7 @@
             <b:widget id='HTML9' locked='false' title='Copyright &amp; Legal' type='HTML'>
               <b:includable id='main'>
                 <b:if cond='data:content != ""'>
-                  <data:content/>
+                  <data:content escape='false'/>
                 <b:else/>
                   <p> 2026 <data:blog.title/>. Unauthorized copying, scraping, or redistribution is prohibited.</p>
                   <p><a href='/p/privacy-policy.html'>Privacy Policy</a>  <a href='https://www.jobharder.com/p/terms-of-use-effective-date-january-8.html'>Terms &amp; Conditions</a></p>
@@ -1729,7 +2079,8 @@
           scoresInner.appendChild(track);
         }
         var safety = 0;
-        while(track.scrollWidth <= scoresInner.clientWidth * 1.2 && safety < 8){
+        var targetWidth = (scoresInner.clientWidth || window.innerWidth) * 1.2;
+        while(track.scrollWidth <= targetWidth && safety < 3){
           Array.from(track.children).forEach(function(item){ track.appendChild(item.cloneNode(true)); });
           safety += 1;
         }
@@ -1822,26 +2173,269 @@
     //]]></script>
     <script type='text/javascript'>//<![CDATA[
       function fixBlurryImages(){
-        var images = document.querySelectorAll('.carousel-inner img, .featured-image, .slide-image, .top-slider img');
+        var images = document.querySelectorAll('.carousel-inner img, .featured-image, .slide-image, .top-slider img, .post-body img, .single-post-body img');
         for(var i=0;i<images.length;i++){
-          var src = images[i].getAttribute('src');
+          var img = images[i];
+          if(!img.getAttribute('loading')) img.setAttribute('loading', 'lazy');
+          if(!img.getAttribute('decoding')) img.setAttribute('decoding', 'async');
+          var src = img.getAttribute('src');
           if(src){
-            var highRes = src.replace('/s72-c/','/s1600/')
-                             .replace('/w72-h72-p-k-no-nu/','/s1600/')
-                             .replace('/s1600-rw/','/s1600/')
-                             .replace('/w640/','/s1600/')
-                             .replace(/\/s\d+(-[a-z0-9-]+)?\//i, '/s1600/')
-                             .replace(/\/w\d+-h\d+(-[a-z0-9-]+)?\//i, '/w1600-h900-c/')
-                             .replace(/=s\d+(-[a-z0-9-]+)?/i, '=s1600')
-                             .replace(/=w\d+-h\d+-[^/]+/i, '=w1600-h900');
-            if(highRes !== src){
-              images[i].setAttribute('src', highRes);
+            var highRes = src.replace('/s72-c/', '/s640-rw/')
+                             .replace('/w72-h72-p-k-no-nu/', '/w640-h360-p-k-no-nu-rw/')
+                             .replace(/\/s\d+(-[a-z0-9-]+)?\//i, '/s640-rw/')
+                             .replace(/\/w\d+-h\d+(-[a-z0-9-]+)?\//i, '/w640-h360-rw/')
+                             .replace(/=s\d+(-[a-z0-9-]+)?/i, '=s640-rw')
+                             .replace(/=w\d+-h\d+-[^/]+/i, '=w640-h360-rw');
+            if(highRes !== src && !src.includes('s1600') && !src.includes('w1600') && !src.includes('w640')){
+              img.setAttribute('src', highRes);
             }
           }
         }
       }
-      window.addEventListener('load', fixBlurryImages);
-      setTimeout(fixBlurryImages, 2000);
+      if(document.readyState === 'complete'){
+        fixBlurryImages();
+      } else {
+        window.addEventListener('load', fixBlurryImages, {once:true});
+      }
+
+      function setCookie(name, value, days) {
+        var expires = '';
+        if (days) {
+          var date = new Date();
+          date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+          expires = '; expires=' + date.toUTCString();
+        }
+        document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/';
+      }
+
+      function getCookie(name) {
+        var nameEQ = name + '=';
+        var ca = document.cookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+          var c = ca[i];
+          while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+          if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+        return null;
+      }
+
+      function hideCookieBanner() {
+        var banner = document.getElementById('cookieBanner');
+        if (banner) banner.classList.add('hide');
+      }
+
+      function hideInstallPrompt() {
+        var previewBar = document.getElementById('previewBar');
+        if (previewBar) previewBar.style.display = 'none';
+        var restore = document.getElementById('restorePreviewBar');
+        if (restore) restore.style.display = 'none';
+      }
+
+      function acceptCookies() {
+        setCookie('jobharder_cookie_consent', 'accepted', 365);
+        hideCookieBanner();
+      }
+
+      function declineCookies() {
+        setCookie('jobharder_cookie_consent', 'declined', 365);
+        hideCookieBanner();
+        hideInstallPrompt();
+      }
+
+      function initCookieBanner() {
+        var consent = getCookie('jobharder_cookie_consent');
+        if (consent === 'accepted' || consent === 'declined') {
+          hideCookieBanner();
+        }
+        if (consent === 'declined') {
+          hideInstallPrompt();
+        }
+        var acceptBtn = document.getElementById('cookieAcceptBtn');
+        if (acceptBtn) acceptBtn.addEventListener('click', acceptCookies);
+        var dismissBtn = document.getElementById('cookieDismissBtn');
+        if (dismissBtn) dismissBtn.addEventListener('click', declineCookies);
+      }
+
+      document.addEventListener('DOMContentLoaded', initCookieBanner);
+
+      var midAdEl = document.getElementById('jhad-mid-data');
+      if(midAdEl){
+        var postBody = document.getElementById('post-body');
+        if(postBody){
+          var paras = postBody.querySelectorAll('p, h2, h3');
+          if(paras.length >= 3){
+            var idx = Math.floor(paras.length / 2);
+            var inject = document.createElement('div');
+            inject.className = 'jobharder-ad-container article-ad-container';
+            inject.innerHTML = midAdEl.innerHTML;
+            paras[idx].parentNode.insertBefore(inject, paras[idx]);
+          }
+        }
+      }
+      /* ========================================================
+         JOBHARDER PERFORMANCE & ACCESSIBILITY OPTIMIZATION SUITE
+         ======================================================== */
+      (function(){
+        // Phase 2: Lite YouTube Embed Facade (0 KiB initial payload, plays on demand)
+        function initLiteYouTube(){
+          var iframes = document.querySelectorAll('iframe[src*="youtube.com"], iframe[src*="youtube-nocookie.com"]');
+          iframes.forEach(function(iframe){
+            var src = iframe.getAttribute('src') || '';
+            var match = src.match(/(?:embed\/|v=|vi=)([a-zA-Z0-9_-]{11})/);
+            if(match && match[1]){
+              var videoId = match[1];
+              var facade = document.createElement('div');
+              facade.className = 'lite-yt-facade';
+              facade.setAttribute('role', 'button');
+              facade.setAttribute('tabindex', '0');
+              facade.setAttribute('aria-label', iframe.getAttribute('title') || 'Play YouTube Video');
+              facade.innerHTML = '<img src="https://i.ytimg.com/vi/' + videoId + '/hqdefault.jpg" alt="Video preview thumbnail" loading="lazy" decoding="async"/><button class="lite-yt-play" aria-label="Play video"></button>';
+              function activatePlayer(){
+                var newIframe = document.createElement('iframe');
+                newIframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                newIframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                newIframe.setAttribute('allowfullscreen', 'true');
+                newIframe.setAttribute('title', iframe.getAttribute('title') || 'YouTube Video Player');
+                newIframe.style.cssText = iframe.style.cssText;
+                newIframe.className = iframe.className;
+                facade.parentNode.replaceChild(newIframe, facade);
+              }
+              facade.addEventListener('click', activatePlayer, {once:true});
+              facade.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ activatePlayer(); } }, {once:true});
+              iframe.parentNode.replaceChild(facade, iframe);
+            }
+          });
+        }
+
+        // Phase 11: Accessible Title for All Embedded Iframes (Maps, Payment, Comments)
+        function ensureIframeTitles(){
+          var iframes = document.querySelectorAll('iframe');
+          iframes.forEach(function(f){
+            if(!f.getAttribute('title')){
+              var src = f.getAttribute('src') || '';
+              if(src.indexOf('flutterwave') !== -1 || (f.id && f.id.indexOf('flw') !== -1)) f.setAttribute('title', 'Flutterwave secure payment checkout');
+              else if(f.id === 'comment-editor') f.setAttribute('title', 'Blogger Comment Editor');
+              else if(src.indexOf('maps') !== -1 || f.classList.contains('BLOG_object_iframe')) f.setAttribute('title', 'Google Map Location');
+              else if(src.indexOf('youtube') !== -1) f.setAttribute('title', 'YouTube video player');
+              else f.setAttribute('title', 'Embedded Content');
+            }
+          });
+          var cookieLearnMore = document.querySelector('a[href*="blogspot-cookies"]');
+          if(cookieLearnMore && !cookieLearnMore.getAttribute('aria-label')){
+            cookieLearnMore.setAttribute('aria-label', 'Learn more about Blogger cookies and privacy policy');
+          }
+        }
+
+        // MutationObserver to watch for dynamically injected iframes (Flutterwave checkout modal)
+        if('MutationObserver' in window){
+          var frameObserver = new MutationObserver(function(){
+            ensureIframeTitles();
+          });
+          frameObserver.observe(document.body, {childList:true, subtree:true});
+        }
+
+        // Phase 13: Sanitize Home & Internal links to canonical HTTPS
+        function sanitizeInternalLinks(){
+          var links = document.querySelectorAll('a[href^="http://www.jobharder.com"], a[href^="http://jobharder.com"]');
+          links.forEach(function(a){
+            a.href = a.href.replace(/^http:\/\//i, 'https://');
+          });
+        }
+
+        /* ========================================================
+           Phase 1: Reloadly Idempotent Loader & Registry Guard
+           ======================================================== */
+        if(window.customElements && typeof window.customElements.define === 'function'){
+          var _origDefine = window.customElements.define.bind(window.customElements);
+          window.customElements.define = function(name, constructor, options){
+            if(window.customElements.get(name)){
+              console.warn('[Reloadly Guard] Custom element "' + name + '" is already registered, skipping duplicate define.');
+              return;
+            }
+            return _origDefine(name, constructor, options);
+          };
+        }
+
+        window.__RELOADLY_STATE = window.__RELOADLY_STATE || 'NOT_REQUESTED';
+
+        window.loadReloadlyOnDemand = function(){
+          if(window.__RELOADLY_STATE === 'LOADING' || window.__RELOADLY_STATE === 'LOADED') return;
+          if(window.customElements && window.customElements.get('reloadly-widget')){
+            window.__RELOADLY_STATE = 'LOADED';
+            return;
+          }
+          if(document.querySelector('script[src*="reloadly-widget"]')){
+            window.__RELOADLY_STATE = 'LOADING';
+            return;
+          }
+          window.__RELOADLY_STATE = 'LOADING';
+          var s = document.createElement('script');
+          s.src = 'https://cdn.reloadly.com/widget/v2/reloadly-widget.js';
+          s.async = true;
+          s.onload = function(){ window.__RELOADLY_STATE = 'LOADED'; };
+          s.onerror = function(){ window.__RELOADLY_STATE = 'FAILED'; console.warn('[Reloadly Guard] Failed to load reloadly-widget.js'); };
+          (document.head || document.body).appendChild(s);
+        };
+        var reloadlyTarget = document.querySelector('reloadly-widget, [data-reloadly], #reloadly-container, .reloadly-widget');
+        if(reloadlyTarget){
+          var triggerReloadlyOnce = function(){
+            reloadlyTarget.removeEventListener('click', triggerReloadlyOnce);
+            reloadlyTarget.removeEventListener('pointerdown', triggerReloadlyOnce);
+            window.loadReloadlyOnDemand();
+          };
+          reloadlyTarget.addEventListener('click', triggerReloadlyOnce, {once:true});
+          reloadlyTarget.addEventListener('pointerdown', triggerReloadlyOnce, {once:true});
+        }
+
+        /* OLD_LOADER_REMOVED:
+          window.__reloadlyLoaded = true;
+          var s = document.createElement('script');
+          s.src = 'https://cdn.reloadly.com/v2/reloadly-widget.js';
+          s.async = true;
+          document.body.appendChild(s);
+        };
+        var reloadlyTarget = document.querySelector('[data-reloadly], #reloadly-container, .reloadly-widget');
+        if(reloadlyTarget){
+          if('IntersectionObserver' in window){
+            var rObserver = new IntersectionObserver(function(entries){
+              if(entries[0].isIntersecting){
+                window.loadReloadlyOnDemand();
+                rObserver.disconnect();
+              }
+            }, {rootMargin: '200px'});
+            rObserver.observe(reloadlyTarget);
+          } else {
+            reloadlyTarget.addEventListener('mouseenter', window.loadReloadlyOnDemand, {once:true});
+            reloadlyTarget.addEventListener('click', window.loadReloadlyOnDemand, {once:true});
+          }
+        }*/
+
+        // Phase 18: Lightweight Real User Monitoring (RUM) for Core Web Vitals (<0.4KB, zero dependencies)
+        if('PerformanceObserver' in window){
+          try {
+            var rumObserver = new PerformanceObserver(function(entryList){
+              entryList.getEntries().forEach(function(entry){
+                if(entry.entryType === 'largest-contentful-paint'){
+                  if(window.gtag) gtag('event', 'lcp_timing', {value: Math.round(entry.startTime)});
+                }
+              });
+            });
+            rumObserver.observe({type: 'largest-contentful-paint', buffered: true});
+          } catch(e){}
+        }
+
+        if(document.readyState === 'loading'){
+          document.addEventListener('DOMContentLoaded', function(){
+            initLiteYouTube();
+            ensureIframeTitles();
+            sanitizeInternalLinks();
+          });
+        } else {
+          initLiteYouTube();
+          ensureIframeTitles();
+          sanitizeInternalLinks();
+        }
+      })();
     //]]></script>
   </body>
 </html>
