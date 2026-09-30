@@ -23,6 +23,8 @@
     <link href='https://fonts.googleapis.com' rel='preconnect'/>
     <link crossorigin='anonymous' href='https://fonts.gstatic.com' rel='preconnect'/>
     <link href='https://pagead2.googlesyndication.com' rel='preconnect'/>
+    <link href='https://blogger.googleusercontent.com' rel='preconnect'/>
+    <link href='https://blogger.googleusercontent.com' rel='dns-prefetch'/>
     <!-- Google Fonts: non-blocking load (print→all swap trick) -->
     <link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Outfit:wght@700;800;900&amp;display=swap' rel='stylesheet' media='print' onload="this.media='all'"/>
     <noscript><link href='https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Outfit:wght@700;800;900&amp;display=swap' rel='stylesheet'/></noscript>
@@ -259,6 +261,7 @@
       .hero-carousel { position:relative; overflow:hidden; border-radius:20px; margin-bottom:32px; border:1px solid var(--border); box-shadow:var(--shadow-lg); min-height:440px; background:var(--bg-card); }
       .carousel-track { display:flex; width:100%; transition:transform .65s cubic-bezier(.16,1,.3,1); will-change:transform; }
       .carousel-slide { position:relative; min-width:100%; min-height:440px; flex-shrink:0; display:flex; align-items:flex-end; padding:52px 48px; background-size:cover; background-position:center center; background-repeat:no-repeat; background-color:var(--bg-card); image-rendering:auto; -webkit-font-smoothing:antialiased; backface-visibility:hidden; }
+      .carousel-bg-img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
       .carousel-slide::before { content:''; position:absolute; inset:0; background:linear-gradient(to top,rgba(5,7,10,.92) 0%,rgba(5,7,10,.45) 55%,rgba(5,7,10,.15) 100%); z-index:1; }
       .carousel-slide-content { position:relative; z-index:2; max-width:680px; }
       .carousel-slide-content .hero-title { margin:8px 0 14px; font-size:32px; }
@@ -1062,7 +1065,12 @@
               <b:widget id='FeaturedPost1' locked='false' title='Carousel Featured Post' type='FeaturedPost'>
                 <b:includable id='main'>
                   <b:if cond='data:post.title'>
-                    <div class='carousel-slide' expr:data-post-url='data:post.url' expr:style='data:post.featuredImage ? "background-image:linear-gradient(to top,rgba(5,7,10,.92) 0%,rgba(5,7,10,.45) 55%,rgba(5,7,10,.15) 100%),url(" + data:post.featuredImage + ");" : "background:radial-gradient(135deg,#1d4ed8 0%,#05070a 70%);"'>
+                    <div class='carousel-slide' expr:data-post-url='data:post.url'>
+                      <b:if cond='data:post.featuredImage'>
+                        <img alt='' class='carousel-bg-img' decoding='async' expr:alt='data:post.title' expr:src='data:post.featuredImage' fetchpriority='high'/>
+                      <b:else/>
+                        <div class='carousel-bg-fallback' style='position:absolute;inset:0;background:radial-gradient(135deg,#1d4ed8 0%,#05070a 70%);'/>
+                      </b:if>
                       <div class='carousel-slide-content'>
                         <b:if cond='data:post.labels'>
                           <span class='hero-label'><data:post.labels.first.name/></span>
@@ -1115,7 +1123,7 @@
           var slide1 = track.querySelector('.carousel-slide');
 
           var s = document.createElement('script');
-          s.src = '/feeds/posts/default?max-results=5&alt=json-in-script&callback=flBuildCarousel';
+          s.src = '/feeds/posts/default?max-results=3&alt=json-in-script&callback=flBuildCarousel';
           document.head.appendChild(s);
 
           window.flBuildCarousel = function(json){
@@ -1177,18 +1185,32 @@
             });
 
             track.innerHTML = '';
-            finalPosts.slice(0,3).forEach(function(p){
+            finalPosts.slice(0,3).forEach(function(p, idx){
               var slide = document.createElement('div');
               slide.className = 'carousel-slide';
-              slide.style.backgroundImage = p.img ? 'url("'+p.img+'")' : '';
-              if(!p.img) slide.style.background = 'radial-gradient(135deg,#1d4ed8 0%,#05070a 70%)';
-              slide.innerHTML =
-                '<div class="carousel-slide-content">'+
+              if(p.img){
+                var imgEl = document.createElement('img');
+                imgEl.src = p.img;
+                imgEl.alt = p.title;
+                imgEl.className = 'carousel-bg-img';
+                imgEl.setAttribute('decoding', 'async');
+                if(idx === 0){
+                  imgEl.setAttribute('fetchpriority', 'high');
+                } else {
+                  imgEl.setAttribute('loading', 'lazy');
+                }
+                slide.appendChild(imgEl);
+              } else {
+                slide.style.background = 'radial-gradient(135deg,#1d4ed8 0%,#05070a 70%)';
+              }
+              var contentDiv = document.createElement('div');
+              contentDiv.className = 'carousel-slide-content';
+              contentDiv.innerHTML =
                 '<span class="hero-label">'+p.cat+'</span>'+ 
                 '<h2 class="hero-title"><a href="'+p.url+'" style="color:#fff;">'+p.title+'</a></h2>'+ 
                 (p.snippet?'<p class="hero-excerpt">'+p.snippet+'</p>':'')+ 
-                '<a class="btn-primary" href="'+p.url+'">Read Story &#8594;</a>'+ 
-                '</div>';
+                '<a class="btn-primary" href="'+p.url+'">Read Story &#8594;</a>';
+              slide.appendChild(contentDiv);
               track.appendChild(slide);
             });
 
@@ -2290,10 +2312,15 @@
           }
         }
 
-        // MutationObserver to watch for dynamically injected iframes (Flutterwave checkout modal)
+        // MutationObserver to watch for dynamically injected iframes (debounced to avoid main-thread churn)
         if('MutationObserver' in window){
+          var frameDebounce = null;
           var frameObserver = new MutationObserver(function(){
-            ensureIframeTitles();
+            if(frameDebounce) return;
+            frameDebounce = setTimeout(function(){
+              ensureIframeTitles();
+              frameDebounce = null;
+            }, 500);
           });
           frameObserver.observe(document.body, {childList:true, subtree:true});
         }
@@ -2307,72 +2334,15 @@
         }
 
         /* ========================================================
-           Phase 1: Reloadly Idempotent Loader & Registry Guard
+           Phase 1: Complete Removal & Blocking of Reloadly (Priority #1)
+           Purges any leftover Reloadly widget markup or script injection.
            ======================================================== */
-        if(window.customElements && typeof window.customElements.define === 'function'){
-          var _origDefine = window.customElements.define.bind(window.customElements);
-          window.customElements.define = function(name, constructor, options){
-            if(window.customElements.get(name)){
-              console.warn('[Reloadly Guard] Custom element "' + name + '" is already registered, skipping duplicate define.');
-              return;
-            }
-            return _origDefine(name, constructor, options);
-          };
-        }
-
-        window.__RELOADLY_STATE = window.__RELOADLY_STATE || 'NOT_REQUESTED';
-
-        window.loadReloadlyOnDemand = function(){
-          if(window.__RELOADLY_STATE === 'LOADING' || window.__RELOADLY_STATE === 'LOADED') return;
-          if(window.customElements && window.customElements.get('reloadly-widget')){
-            window.__RELOADLY_STATE = 'LOADED';
-            return;
+        try {
+          var reloadlyEls = document.querySelectorAll('reloadly-widget, [data-reloadly], #reloadly-container, .reloadly-widget, script[src*="reloadly"]');
+          for(var rIdx = 0; rIdx < reloadlyEls.length; rIdx++){
+            if(reloadlyEls[rIdx].parentNode) reloadlyEls[rIdx].parentNode.removeChild(reloadlyEls[rIdx]);
           }
-          if(document.querySelector('script[src*="reloadly-widget"]')){
-            window.__RELOADLY_STATE = 'LOADING';
-            return;
-          }
-          window.__RELOADLY_STATE = 'LOADING';
-          var s = document.createElement('script');
-          s.src = 'https://cdn.reloadly.com/widget/v2/reloadly-widget.js';
-          s.async = true;
-          s.onload = function(){ window.__RELOADLY_STATE = 'LOADED'; };
-          s.onerror = function(){ window.__RELOADLY_STATE = 'FAILED'; console.warn('[Reloadly Guard] Failed to load reloadly-widget.js'); };
-          (document.head || document.body).appendChild(s);
-        };
-        var reloadlyTarget = document.querySelector('reloadly-widget, [data-reloadly], #reloadly-container, .reloadly-widget');
-        if(reloadlyTarget){
-          var triggerReloadlyOnce = function(){
-            reloadlyTarget.removeEventListener('click', triggerReloadlyOnce);
-            reloadlyTarget.removeEventListener('pointerdown', triggerReloadlyOnce);
-            window.loadReloadlyOnDemand();
-          };
-          reloadlyTarget.addEventListener('click', triggerReloadlyOnce, {once:true});
-          reloadlyTarget.addEventListener('pointerdown', triggerReloadlyOnce, {once:true});
-        }
-
-        /* OLD_LOADER_REMOVED:
-          window.__reloadlyLoaded = true;
-          var s = document.createElement('script');
-          s.src = 'https://cdn.reloadly.com/v2/reloadly-widget.js';
-          s.async = true;
-          document.body.appendChild(s);
-        };
-        var reloadlyTarget = document.querySelector('[data-reloadly], #reloadly-container, .reloadly-widget');
-        if(reloadlyTarget){
-          if('IntersectionObserver' in window){
-            var rObserver = new IntersectionObserver(function(entries){
-              if(entries[0].isIntersecting){
-                window.loadReloadlyOnDemand();
-                rObserver.disconnect();
-              }
-            }, {rootMargin: '200px'});
-            rObserver.observe(reloadlyTarget);
-          } else {
-            reloadlyTarget.addEventListener('mouseenter', window.loadReloadlyOnDemand, {once:true});
-            reloadlyTarget.addEventListener('click', window.loadReloadlyOnDemand, {once:true});
-          }
-        }*/
+        } catch(e){}
 
         // Phase 18: Lightweight Real User Monitoring (RUM) for Core Web Vitals (<0.4KB, zero dependencies)
         if('PerformanceObserver' in window){
